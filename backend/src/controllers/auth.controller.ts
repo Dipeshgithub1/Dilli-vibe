@@ -8,7 +8,7 @@ export const registerController = async(
     next:NextFunction
 ) => {
     try {
-        registerSchema.parse({ body: req.body });
+        registerSchema.parse(req.body);
     const { email, password, firstName, lastName } = req.body as {
       email: string;
       password: string;
@@ -44,7 +44,7 @@ export const loginController = async(
 )=> {
 
     try {
-        loginSchema.parse({ body: req.body });
+        loginSchema.parse(req.body);
         const { email, password } = req.body as {
        email: string;
        password: string;

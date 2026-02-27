@@ -4,7 +4,6 @@ import { email, z } from "zod";
  // REGISTER (STEP 1)
 
 export const registerSchema = z.object({
-  body: z.object({
     email: z
       .string()
       .email("Invalid email address")
@@ -21,14 +20,14 @@ export const registerSchema = z.object({
       lastName:z
       .string()
       .min(1,"Last name is required")
-  }),
-});
+  });
+
 
 
  // LOGIN (STEP 2)
  
 export const loginSchema = z.object({
-  body: z.object({
+
     email: z
       .string()
       .email("Invalid email address")
@@ -37,13 +36,11 @@ export const loginSchema = z.object({
     password: z
       .string()
       .min(6, "Password must be at least 6 characters"),
-  }),
-});
+  });
 
 
  // After login – personalization
  export const onboardingSchema = z.object({
-  body: z.object({
     firstName: z.string().min(1).optional(),
 
     lastName: z.string().min(1).optional(),
@@ -55,5 +52,5 @@ export const loginSchema = z.object({
     budgetPreference: z.enum(["low", "medium", "high"]).optional(),
 
     companyType: z.enum(["solo", "friends", "couple", "family"]).optional(),
-  }),
-});
+  });
+
