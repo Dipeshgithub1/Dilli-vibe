@@ -16,7 +16,7 @@ export default function DashboardPage() {
           {/* Header */}
           <div className="flex justify-between items-center mb-10">
             <h1 className="text-2xl font-semibold">
-              Welcome, {user?.firstname} 👋
+              Welcome, {user?.firstName} 👋
             </h1>
             <button
               onClick={() => router.push("/onboarding")}

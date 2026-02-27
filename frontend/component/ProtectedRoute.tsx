@@ -1,6 +1,6 @@
 import { ReactNode, useEffect } from "react";
 import { useAuthStore } from "../store/authStore";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 
 
@@ -15,7 +15,7 @@ export default function ProtectedRoute({children} : props){
 
     useEffect(() => {
       fetchMe()
-    },[])
+    },[fetchMe])
 
     useEffect(() => {
      if(!loading && !user){

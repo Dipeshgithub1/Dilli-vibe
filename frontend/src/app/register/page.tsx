@@ -8,8 +8,8 @@ export default function RegisterPage() {
   const router = useRouter();
 
   const [form, setForm] = useState({
-    firstname: "",
-    lastname: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
   });
@@ -63,21 +63,21 @@ export default function RegisterPage() {
           <div className="flex gap-4">
             <input
               type="text"
-              name="firstname"
+              name="firstName"
               placeholder="First Name"
               required
               className="w-1/2 px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white"
-              value={form.firstname}
+              value={form.firstName}
               onChange={handleChange}
             />
 
             <input
               type="text"
-              name="lastname"
+              name="lastName"
               placeholder="Last Name"
               required
               className="w-1/2 px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white"
-              value={form.lastname}
+              value={form.lastName}
               onChange={handleChange}
             />
           </div>
