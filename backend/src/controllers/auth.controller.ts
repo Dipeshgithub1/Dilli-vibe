@@ -16,7 +16,7 @@ export const registerController = async(
       lastName: string;
     };
 
-        const user = await registerUser({
+        const { user, token }  = await registerUser({
             email,
             password,
             firstName,
@@ -26,6 +26,7 @@ export const registerController = async(
 
         res.status(201).json({
             success: true,
+            token,
             message:"User registered successfully",
             data:user,
         })

@@ -29,12 +29,21 @@ export const registerUser = async ({
     lastName,
   });
 
+    const token = jwt.sign(
+    { id: user._id, email: user.email },
+    process.env.JWT_SECRET as string,
+    { expiresIn: "1h" }
+  );
+
   return {
-    id: user._id,
-    email: user.email,
-    firstName: user.firstName,
-    lastName: user.lastName
-  };
+    token,
+    user: {
+      id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    }
+  }
 };
 
 export const loginUser = async (email: string, password: string) => {
@@ -61,4 +70,4 @@ export const loginUser = async (email: string, password: string) => {
       email: user.email,
     },
   };
-};
+}
