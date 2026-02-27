@@ -1,3 +1,5 @@
+"use client";
+
 import { ReactNode, useEffect } from "react";
 import { useAuthStore } from "../store/authStore";
 import { useRouter } from "next/navigation";
@@ -17,11 +19,13 @@ export default function ProtectedRoute({children} : props){
       fetchMe()
     },[fetchMe])
 
-    useEffect(() => {
-     if(!loading && !user){
-        router.push("/login")
-     }
-    },[user,loading])
+   useEffect(() => {
+  if (!loading && !user) {
+    router.push("/login");
+  }
+}, [user, loading, router]);
+
+
 
     if (loading)
         return null;

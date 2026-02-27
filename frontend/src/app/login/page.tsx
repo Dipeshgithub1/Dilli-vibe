@@ -18,8 +18,9 @@ export default function LoginPage() {
 
     try {
       const res = await api.post("/auth/login", { email, password });
+     
 
-      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("token", res.data.data.token);
 
       router.push("/dashboard");
     } catch (err: any) {
