@@ -1,7 +1,12 @@
 import { User } from "../model/user.model";
 import { Experience } from "../model/experience.model";
 
-export const getRecommendationsForUser = async(userId:string) => {
+export const getRecommendationsForUser = async(
+    userId:string,
+    page:number = 1,
+    limit:number = 6
+
+) => {
 
     //get user preparenece 
 
@@ -30,7 +35,22 @@ export const getRecommendationsForUser = async(userId:string) => {
     query.suitableFor = user.companyType;
   }
 
- const experiences = await Experience.find(query).limit(20);
+  const skip = (page - 1) * limit;
 
-  return experiences; 
+
+ const experiences = await Experience.find(query)
+ .sort({rating:-1})
+ .skip(skip)
+ .limit(limit)
+ .lean();
+
+ const total = await Experience.countDocuments(query);
+
+  return {
+    data: experiences,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit)
+
+  }
 }

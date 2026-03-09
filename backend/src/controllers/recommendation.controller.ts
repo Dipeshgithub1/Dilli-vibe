@@ -13,11 +13,18 @@ export const recommendationController = async(
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const recommendations  = await getRecommendationsForUser(userId)
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 6;
+
+    const recommendations  = await getRecommendationsForUser(
+      userId,
+      page,
+      limit
+    )
 
         res.status(200).json({
       success: true,
-      data: recommendations,
+      ...recommendations,
         })
 
     } catch (error) {

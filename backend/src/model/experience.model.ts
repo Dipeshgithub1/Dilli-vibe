@@ -62,10 +62,12 @@ const experienceSchema = new Schema <IExperience>(
       type: Number,
       min: 0,
       max: 5,
+      default:4
     },
 
     image: {
       type: String,
+       default: ""
     },
 
     isActive: {
@@ -77,6 +79,19 @@ const experienceSchema = new Schema <IExperience>(
         timestamps:true
     }
 )
+
+//index for search and recommemends
+experienceSchema.index({
+  mood:1,
+  budgetPreference: 1,
+  suitableFor: 1
+});
+
+experienceSchema.index({
+  description: "text",
+  area: "text",
+  tags: "text"
+})
 
 export const Experience = mongoose.model<IExperience>(
     "Experience",
