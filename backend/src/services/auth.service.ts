@@ -42,6 +42,7 @@ export const registerUser = async ({
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      isOnboarded: user.isOnboarded, 
     }
   }
 };
