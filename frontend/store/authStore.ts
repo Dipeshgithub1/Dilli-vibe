@@ -8,6 +8,7 @@ interface User {
  firstName: string;
   lastName: string;
   email: string;
+  isOnboarded: boolean;  
 }
 
 interface AuthState {

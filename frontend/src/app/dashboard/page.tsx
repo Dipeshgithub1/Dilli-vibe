@@ -3,10 +3,21 @@
 import ProtectedRoute from "../../../component/ProtectedRoute";
 import { useAuthStore } from "../../../store/authStore";
 import { useRouter } from "next/navigation";
+import api from "../../../lib/axios";
 
 export default function DashboardPage() {
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (e) {
+      console.log(e);
+    }
+    logout();
+    router.push("/login");
+  };
 
   return (
     <ProtectedRoute>
@@ -23,6 +34,12 @@ export default function DashboardPage() {
               className="px-5 py-2 bg-white text-black rounded-lg hover:bg-zinc-200 transition"
             >
               Find My Vibe
+            </button>
+            <button
+              onClick={handleLogout}
+              className="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition"
+            >
+              Logout
             </button>
           </div>
 

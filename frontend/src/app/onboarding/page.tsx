@@ -15,28 +15,38 @@ const moods = [
 ];
 
 export default function OnboardingPage() {
+
   const router = useRouter();
 
-  const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const [selectedMood, setSelectedMood] = useState<string[]>([]);
   const [budget, setBudget] = useState<"low" | "medium" | "high" | "">("");
   const [people, setPeople] = useState<
     "solo" | "couple" | "friends" | "family"
   >("solo");
 
-  const [loading, setLoading] = useState(false);
+  const [loading,setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!selectedMood || !budget) return;
+
+    if (!selectedMood.length || !budget) return;
 
     setLoading(true);
 
     try {
+
+
+      await api.patch("/users/onboarding",{
+      preferredVibes: selectedMood,
+      budgetPreference: budget,
+      companyType: people,
+      })
+
       const res = await api.get("/recommendations", {
-        params: {
-          mood: selectedMood,
-          budgetPreference: budget,
-          suitableFor: people,
-        },
+        params:{
+          mood:selectedMood,
+          budgetPreference:budget,
+          suitableFor:people
+        }
       });
 
       localStorage.setItem(
@@ -45,15 +55,19 @@ export default function OnboardingPage() {
       );
 
       router.push("/recommendations");
-    } catch (err) {
+
+    } catch(err){
       console.error(err);
-    } finally {
+    } finally{
       setLoading(false);
     }
+
   };
 
   return (
+
     <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center px-4">
+
       <div className="w-full max-w-3xl">
 
         <h1 className="text-3xl font-semibold text-center mb-2">
@@ -65,32 +79,79 @@ export default function OnboardingPage() {
         </p>
 
         {/* Mood Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+
           {moods.map((mood) => (
+
             <button
               key={mood.value}
-              onClick={() => setSelectedMood(mood.value)}
+              onClick={() =>
+                setSelectedMood((prev) =>
+                  prev.includes(mood.value)
+                    ? prev.filter((m) => m !== mood.value)
+                    : [...prev,mood.value]
+                )
+              }
               className={`p-4 rounded-xl border transition-all ${
-                selectedMood === mood.value
-                  ? "bg-white text-black border-white scale-105"
-                  : "bg-zinc-900 border-zinc-800 hover:border-white"
+                selectedMood.includes(mood.value)
+                  ? "bg-white text-black border-white scale-105 shadow-md"
+                  : "bg-zinc-900 border-zinc-800 hover:border-orange-400"
               }`}
             >
               {mood.label}
             </button>
+
           ))}
+
         </div>
 
+        {/* Selected Mood Tags */}
+
+        {selectedMood.length > 0 && (
+
+          <div className="flex flex-wrap gap-2 mb-6">
+
+            {selectedMood.map((mood) => (
+
+              <div
+                key={mood}
+                className="flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 text-orange-400 px-3 py-1 rounded-full text-sm"
+              >
+
+                {mood}
+
+                <span
+                  className="cursor-pointer"
+                  onClick={() =>
+                    setSelectedMood((prev) =>
+                      prev.filter((m) => m !== mood)
+                    )
+                  }
+                >
+                  ×
+                </span>
+
+              </div>
+
+            ))}
+
+          </div>
+
+        )}
+
         {/* Budget + People */}
+
         <div className="space-y-4 mb-6">
 
-          {/* Budget Select */}
+          {/* Budget */}
+
           <select
             value={budget}
-            onChange={(e) =>
-              setBudget(e.target.value as "low" | "medium" | "high")
+            onChange={(e)=>
+              setBudget(e.target.value as "low"|"medium"|"high")
             }
-            className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-white"
+            className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
           >
             <option value="">Select Budget</option>
             <option value="low">Low (Under ₹500)</option>
@@ -98,36 +159,54 @@ export default function OnboardingPage() {
             <option value="high">High (₹1500+)</option>
           </select>
 
-          {/* Suitable For */}
+          {/* People */}
+
           <select
             value={people}
-            onChange={(e) =>
+            onChange={(e)=>
               setPeople(
                 e.target.value as
-                  | "solo"
-                  | "couple"
-                  | "friends"
-                  | "family"
+                |"solo"
+                |"couple"
+                |"friends"
+                |"family"
               )
             }
-            className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-white"
+            className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
           >
             <option value="solo">1 Person</option>
             <option value="couple">2 People</option>
             <option value="friends">3–5 Friends</option>
             <option value="family">Family</option>
           </select>
+
         </div>
 
         {/* Submit Button */}
+
         <button
           onClick={handleSubmit}
-          disabled={loading || !selectedMood || !budget}
-          className="w-full py-3 rounded-xl bg-white text-black font-medium hover:bg-zinc-200 transition disabled:opacity-50"
+          disabled={loading || !selectedMood.length || !budget}
+          className="w-full py-3 rounded-xl bg-orange-500 text-white font-medium hover:bg-orange-400 transition disabled:opacity-50 flex items-center justify-center gap-2"
         >
-          {loading ? "Finding places..." : "Find My Vibe"}
+
+          {loading ? (
+            <>
+              <span className="animate-spin">⟳</span>
+              Finding places...
+            </>
+          ) : (
+            <>
+              Find My Vibe →
+            </>
+          )}
+
         </button>
+
       </div>
+
     </div>
+
   );
+
 }
