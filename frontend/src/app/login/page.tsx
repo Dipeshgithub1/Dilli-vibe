@@ -22,10 +22,18 @@ export default function LoginPage() {
      
 
       localStorage.setItem("token", res.data.data.token);
+      localStorage.setItem("user",JSON.stringify(res.data.token))
 
       router.push("/dashboard");
     } catch (err: any) {
-      setError(err.response?.data?.message || "Login failed");
+      if (err.response) {
+    setError(err.response.data.message);
+  } else if (err.request) {
+    setError("Server not responding");
+  } else {
+    setError("Something went wrong");
+  }
+  
     } finally {
       setLoading(false);
     }

@@ -5,7 +5,7 @@ import { create } from "zustand";
 
 interface User {
     _id:string,
- firstName: string;
+  firstName: string;
   lastName: string;
   email: string;
   isOnboarded: boolean;  
@@ -25,10 +25,16 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   fetchMe: async () => {
     try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        set({ user: null, loading: false });
+        return;
+      }
       const res = await api.get("/auth/me");
       set({ user: res.data.data });
     } catch {
-      set({ user: null });
+      set({ user: null,loading:false });
     } finally {
       set({ loading: false });
     }
@@ -36,6 +42,6 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: () => {
     localStorage.removeItem("token");
-    set({ user: null });
+    set({ user: null,loading:false });
   },
 }));

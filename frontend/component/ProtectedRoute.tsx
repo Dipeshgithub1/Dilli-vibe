@@ -16,6 +16,12 @@ export default function ProtectedRoute({children} : props){
 
 
     useEffect(() => {
+      const token = localStorage.getItem("token")
+
+      if(!token){
+        router.push("/login");
+        return;
+      }
       fetchMe()
     },[fetchMe])
 
@@ -28,7 +34,11 @@ export default function ProtectedRoute({children} : props){
 
 
     if (loading)
-        return null;
+        return (
+      <div className="flex items-center justify-center min-h-screen bg-zinc-950 text-white">
+        Loading...
+      </div>
+        )
 
     return <>{children}</>
 
