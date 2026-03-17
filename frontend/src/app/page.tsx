@@ -12,14 +12,24 @@ export default function HomePage() {
     <div className="relative min-h-screen bg-[#f7f7f7] text-black overflow-hidden">
 
       {/* Animated Gradient Background */}
-      <motion.div
-        className="absolute inset-0 -z-10"
-        animate={{ opacity: [0.7, 1, 0.7] }}
-        transition={{ duration: 6, repeat: Infinity }}
-      >
-        <div className="absolute top-0 -left-50 w-150 h-full bg-green-400/30 blur-[120px] rounded-full"></div>
-        <div className="absolute top-0 -right-50 w-150 h-full bg-emerald-300/30 blur-[120px] rounded-full"></div>
-      </motion.div>
+      {/* Updated Animated Gradient Background */}
+<motion.div
+  className="absolute inset-0 -z-10 bg-[#fffaf5]" // Added a very subtle orange tint to the base
+  animate={{ opacity: [0.8, 1, 0.8] }}
+  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+>
+  {/* Primary Orange Flow (Left) */}
+  <div className="absolute top-[-10%] -left-[10%] w-[70%] h-[120%] bg-linear-to-br from-orange-400/40 via-amber-200/20 to-transparent blur-[100px] rotate-12 transform-gpu"></div>
+  
+  {/* Secondary Glow (Right) */}
+  <div className="absolute top-[-20%] -right-[10%] w-[60%] h-[140%] bg-linear-to-bl from-orange-500/30 via-orange-300/20 to-transparent blur-[120px] -rotate-12 transform-gpu"></div>
+
+  {/* Accent Light Streaks - This mimics the "lines" in your image */}
+  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full opacity-50">
+    <div className="absolute top-0 left-[20%] w-px h-full bg-orange-400/20 blur-sm rotate-15"></div>
+    <div className="absolute top-0 right-[20%] w-1px h-full bg-orange-300/20 blur-sm -rotate-15deg"></div>
+  </div>
+</motion.div>
 
       {/* Navbar */}
       <motion.nav
@@ -93,7 +103,8 @@ export default function HomePage() {
           className="text-4xl md:text-6xl font-bold leading-tight max-w-4xl mx-auto"
         >
           Discover Delhi with{" "}
-          <span className="text-green-600">AI-powered vibes</span>{" "}
+          {/* Updated text color to Orange */}
+          <span className="text-orange-600">AI-powered vibes</span>{" "}
           tailored to your mood
         </motion.h1>
 
@@ -112,7 +123,8 @@ export default function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
           onClick={() => router.push(user ? "/dashboard" : "/register")}
-          className="mt-8 px-8 py-3 bg-green-600 text-white rounded-full font-medium shadow-lg hover:bg-green-700 transition"
+  
+          className="mt-8 px-8 py-3 bg-orange-600 text-white rounded-full font-medium shadow-lg hover:bg-orange-700 transition"
         >
           Find My Vibe →
         </motion.button>
