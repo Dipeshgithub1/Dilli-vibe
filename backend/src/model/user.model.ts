@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcryptjs";
-import { string } from "zod";
+import { Mood } from "../util/moodTags";
 
 export interface IUser extends Document {
   email: string;
@@ -9,7 +9,7 @@ export interface IUser extends Document {
   lastName: string;
   avatar?: string;
   // Onboarding / Preferences
-  preferredVibes: string[];
+  preferredVibes: Mood[];
   budgetPreference?: "low" | "medium" | "high";
   companyType?: "solo" | "friends" | "couple" | "family";
   isOnboarded: boolean;
@@ -52,16 +52,17 @@ const userSchema = new Schema<IUser>(
     googleId: String,
     avatar: String,
     preferredVibes: {
-      type: [String],
-      default: [],
-      index:true,
-    },
+  type: [String],
+  enum: ["chill", "fun", "romantic", "explore", "food", "social"],
+  default: [],
+  index: true,
+},
     budgetPreference: {
       type: String,
       enum: ["low", "medium", "high"],
     },
     companyType:{
-      type:string,
+      type:String,
       enum:["solo", "friends", "couple", "family"]
       
     },
@@ -79,6 +80,7 @@ userSchema.pre<IUser>("save", async function (next) {
   if (!this.isModified("password")) return;
 
   this.password = await bcrypt.hash(this.password, 10);
+  
 
 });
 
