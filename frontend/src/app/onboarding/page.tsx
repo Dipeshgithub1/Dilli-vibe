@@ -9,10 +9,10 @@ import api from "../../../lib/axios";
 const moods = [
   { label: "Romantic 💕", value: "romantic" },
   { label: "Chill ☕", value: "chill" },
-  { label: "Party 🎉", value: "party" },
-  { label: "Luxury ✨", value: "luxury" },
-  { label: "Nature 🌿", value: "nature" },
-  { label: "Foodie 🍜", value: "food" },
+  { label: "Fun 🎉", value: "fun" },
+  { label: "Explore 🌿", value: "explore" },
+  { label: "Food 🍜", value: "food" },
+  { label: "Social 👯", value: "social" },
 ];
 
 export default function OnboardingPage() {

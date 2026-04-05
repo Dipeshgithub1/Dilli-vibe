@@ -47,7 +47,7 @@ export default function RecommendationsPage() {
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        setPlaces(parsed);
+        setPlaces(parsed.data || parsed);
       } catch (error) {
         console.error("Invalid stored data");
         router.push("/dashboard");
@@ -121,7 +121,7 @@ export default function RecommendationsPage() {
                 {/* Suitable For */}
                 <p className="text-xs text-zinc-400 mb-2">
                   👥 {place.suitableFor
-                    .map((type) => peopleDisplayMap[type])
+                    .map((type) => peopleDisplayMap[type] || type)
                     .join(", ")}
                 </p>
 
@@ -145,9 +145,9 @@ export default function RecommendationsPage() {
                 {/* Budget + Rating */}
                 <div className="flex justify-between items-center mb-4 text-sm">
                   <span
-                    className={`font-semibold ${budgetColorMap[place.budgetPreference]}`}
+                    className={`font-semibold ${budgetColorMap[place.budgetPreference] || "text-zinc-300"}`}
                   >
-                    {budgetDisplayMap[place.budgetPreference]}
+                    {budgetDisplayMap[place.budgetPreference] || place.budgetPreference}
                   </span>
 
                   <span className="text-zinc-300">

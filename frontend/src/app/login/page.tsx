@@ -22,7 +22,6 @@ export default function LoginPage() {
      
 
       localStorage.setItem("token", res.data.data.token);
-      localStorage.setItem("user",JSON.stringify(res.data.token))
 
       router.push("/dashboard");
     } catch (err: any) {

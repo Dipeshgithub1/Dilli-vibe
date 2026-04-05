@@ -23,7 +23,7 @@ export default function ProtectedRoute({children} : props){
         return;
       }
       fetchMe()
-    },[fetchMe])
+    },[fetchMe, router])
 
    useEffect(() => {
   if (!loading && !user) {
