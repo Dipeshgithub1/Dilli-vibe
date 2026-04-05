@@ -3,98 +3,81 @@ import { Experience } from "../model/experience.model";
 import { moodToTags } from "../util/moodTags";
 import { Mood } from "../util/moodTags";
 
-export const getRecommendationsForUser = async(
-    userId:string,
-    page:number = 1,
-    limit:number = 6
-
+export const getRecommendationsForUser = async (
+  userId: string,
+  page: number = 1,
+  limit: number = 6
 ) => {
+  const user = await User.findById(userId);
 
-    //get user preparenece 
+  if (!user) {
+    throw new Error("User not found");
+  }
+  if (!user.isOnboarded) {
+    throw new Error("User has not completed onboarding");
+  }
 
-    const user = await User.findById(userId);
+  let userTags: string[] = [];
 
-    if(!user){
-        throw new Error("User not found")
-    }
-    if(!user.isOnboarded){
-        throw new Error("User has not completed onboarding");
-    }
+  if (user.preferredVibes?.length) {
+    user.preferredVibes.forEach((mood: Mood) => {
+      userTags.push(...moodToTags[mood]);
+    });
+  }
 
-    // mood convert in tags
-    let UserTags : string[] = [];
+  userTags = [...new Set(userTags)];
 
-    //Build query dynamically
+  const matchStage: any = { isActive: true };
+  if (userTags.length) {
+    matchStage.tags = { $in: userTags };
+  }
 
-    // const query :any = {
-    //     isActive: true,
-    // };
+  const experiences = await Experience.aggregate([
+    { $match: matchStage },
+    {
+      $addFields: {
+        tagMatchCount: {
+          $size: {
+            $setIntersection: ["$tags", userTags.length ? userTags : []],
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        score: {
+          $add: [
+            { $multiply: ["$tagMatchCount", 3] },
+            { $ifNull: ["$rating", 0] },
+            { $ifNull: ["$popularityScore", 0] },
+            { $cond: [{ $eq: ["$budgetPreference", user.budgetPreference] }, 2, 0] },
+            {
+              $cond: [
+                {
+                  $and: [
+                    { $ifNull: [user.companyType, false] },
+                    { $in: [user.companyType, "$suitableFor"] },
+                  ],
+                },
+                2,
+                0,
+              ],
+            },
+          ],
+        },
+      },
+    },
+    { $sort: { score: -1, rating: -1 } },
+    { $skip: (page - 1) * limit },
+    { $limit: limit },
+  ]);
 
-    let userTags: string[] = [];
-
-if (user.preferredVibes?.length) {
-  user.preferredVibes.forEach((mood: Mood) => {
-    userTags.push(...moodToTags[mood]);
-  });
-}
-
-  
-  // 🔹 remove duplicates
-  UserTags = [...new Set(UserTags)];
-
-  // 🔹 3. Fetch relevant experiences (optimized)
-  const experiences = await Experience.find({
-    isActive: true,
-    ...(UserTags.length && { tags: { $in: UserTags } }) // 🔥 optimization
-  }).lean();
-
-  // 🔹 4. Score experiences
-  const scored = experiences.map((exp: any) => {
-    let score = 0;
-
-    // ✅ tag match (main logic)
-    const matchCount = UserTags.filter(tag =>
-      exp.tags.includes(tag)
-    ).length;
-
-    score += matchCount * 3;
-
-    // ✅ rating boost
-    score += exp.rating || 0;
-
-    // ✅ popularity boost
-    score += exp.popularityScore || 0;
-
-    // ✅ budget match
-    if (user.budgetPreference === exp.budgetPreference) {
-      score += 2;
-    }
-
-    // ✅ suitableFor match
-    if (
-      user.companyType &&
-      exp.suitableFor.includes(user.companyType)
-    ) {
-      score += 2;
-    }
-
-    return {
-      ...exp,
-      score,
-    };
-  });
-
-  // 🔹 5. Sort by score
-  scored.sort((a, b) => b.score - a.score);
-
-  // 🔹 6. Pagination AFTER ranking
-  const start = (page - 1) * limit;
-  const paginated = scored.slice(start, start + limit);
+  const total = await Experience.countDocuments(matchStage);
 
   return {
-    data: paginated,
-    total: scored.length,
+    data: experiences,
+    total,
     page,
-    totalPages: Math.ceil(scored.length / limit),
+    totalPages: Math.ceil(total / limit),
   };
 };

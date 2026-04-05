@@ -90,13 +90,12 @@ const experienceSchema = new Schema <IExperience>(
     },
 
     image: {
-      type: String,
-       default: ""
+      type: String
     },
 
     location: {
-      lat: Number,
-      lng: Number,
+      lat: { type: Number },
+      lng: { type: Number },
     },
 
     isActive: {
@@ -110,9 +109,11 @@ const experienceSchema = new Schema <IExperience>(
 )
 
 //index for search and recommemends
-experienceSchema.index({tags:1});
-experienceSchema.index({area:1,budgetPreference: 1 });
-experienceSchema.index({rating:-1})
+
+experienceSchema.index({ area: 1, budgetPreference: 1 });
+experienceSchema.index({ rating: -1 });
+experienceSchema.index({ popularityScore: -1 });
+experienceSchema.index({ name: "text", description: "text", tags: "text" });
 
 
 

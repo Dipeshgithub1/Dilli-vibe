@@ -32,7 +32,7 @@ export const registerUser = async ({
     const token = jwt.sign(
     { id: user._id, email: user.email },
     process.env.JWT_SECRET as string,
-    { expiresIn: "1h" }
+    { expiresIn: "7d" }
   );
 
   return {
@@ -48,7 +48,7 @@ export const registerUser = async ({
 };
 
 export const loginUser = async (email: string, password: string) => {
-  const user = await User.findOne({ email }).select("+password");;
+  const user = await User.findOne({ email }).select("+password");
   if (!user) {
     throw new Error("Invalid email or password");
   }
@@ -61,7 +61,7 @@ export const loginUser = async (email: string, password: string) => {
   const token = jwt.sign(
     { id: user._id, email: user.email },
     process.env.JWT_SECRET as string,
-    { expiresIn: "1h" }
+    { expiresIn: "7d" }
   );
 
   return {
