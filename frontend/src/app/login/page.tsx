@@ -4,9 +4,11 @@ import { useState } from "react";
 import api from "../../../lib/axios";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "../../../store/authStore";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { fetchMe } = useAuthStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,10 +22,16 @@ export default function LoginPage() {
     try {
       const res = await api.post("/auth/login", { email, password });
      
-
       localStorage.setItem("token", res.data.data.token);
 
-      router.push("/dashboard");
+      await fetchMe();
+
+      const user = useAuthStore.getState().user;
+      if (user?.isOnboarded) {
+        router.push("/dashboard");
+      } else {
+        router.push("/onboarding");
+      }
     } catch (err: any) {
       if (err.response) {
     setError(err.response.data.message);

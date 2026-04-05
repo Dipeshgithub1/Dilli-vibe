@@ -35,7 +35,12 @@ export default function RegisterPage() {
         localStorage.setItem("token", res.data.token);
       }
 
-      router.push("/dashboard");
+      // Redirect based on onboarding status
+      if (res.data.data?.isOnboarded) {
+        router.push("/dashboard");
+      } else {
+        router.push("/onboarding");
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || "Registration failed");
     } finally {
