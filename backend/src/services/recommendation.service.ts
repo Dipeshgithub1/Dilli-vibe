@@ -2,11 +2,13 @@ import { User } from "../model/user.model";
 import { Experience } from "../model/experience.model";
 import { moodToTags } from "../util/moodTags";
 import { Mood } from "../util/moodTags";
+import { getMoodTags } from "./gemini.service";
 
 export const getRecommendationsForUser = async (
   userId: string,
   page: number = 1,
-  limit: number = 6
+  limit: number = 6,
+  SearchText?:string
 ) => {
   const user = await User.findById(userId);
 
@@ -23,6 +25,10 @@ export const getRecommendationsForUser = async (
     user.preferredVibes.forEach((mood: Mood) => {
       userTags.push(...moodToTags[mood]);
     });
+  }
+  if(SearchText){
+    const aiTags = await getMoodTags(SearchText);
+    userTags.push(...aiTags)
   }
 
   userTags = [...new Set(userTags)];
