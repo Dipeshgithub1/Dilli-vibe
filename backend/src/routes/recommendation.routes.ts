@@ -6,5 +6,6 @@ import { recommendationController } from "../controllers/recommendation.controll
 const router = Router();
 
 router.get("/",authMiddleware,recommendationController)
+router.post("/",authMiddleware,recommendationController)
 
 export default router;

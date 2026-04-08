@@ -15,6 +15,7 @@ const moods = [
   { label: "Social 👯", value: "social" },
 ];
 
+
 export default function OnboardingPage() {
 
   const router = useRouter();
@@ -34,21 +35,22 @@ export default function OnboardingPage() {
     setLoading(true);
 
     try {
-
-
       await api.patch("/users/onboarding",{
-      preferredVibes: selectedMood,
-      budgetPreference: budget,
-      companyType: people,
-      })
-
-      const res = await api.get("/recommendations", {
-        params:{
-          mood:selectedMood,
-          budgetPreference:budget,
-          suitableFor:people
-        }
+        preferredVibes: selectedMood,
+        budgetPreference: budget,
+        companyType: people,
       });
+
+      // await new Promise(resolve => setTimeout(resolve, 500));
+
+      //ai recommended call
+
+      const res = await api.post(
+  "/recommendations?page=1&limit=6",
+  {
+    searchText: `${selectedMood.join(" ")} ${people} ${budget}`,
+  }
+);
 
       localStorage.setItem(
         "recommendations",

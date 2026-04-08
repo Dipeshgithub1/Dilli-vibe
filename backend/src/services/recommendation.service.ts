@@ -10,8 +10,10 @@ export const getRecommendationsForUser = async (
   limit: number = 6,
   SearchText?:string
 ) => {
+  console.log("🎯 getRecommendationsForUser called:", { userId, SearchText });
+  
   const user = await User.findById(userId);
-
+  
   if (!user) {
     throw new Error("User not found");
   }

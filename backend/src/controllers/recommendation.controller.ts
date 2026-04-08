@@ -16,7 +16,7 @@ export const recommendationController = async(
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 6;
 
-    const { searchText = "" } = req.body;
+    const searchText  = req.body?.searchText || "";
 
     const recommendations  = await getRecommendationsForUser(
       userId,
