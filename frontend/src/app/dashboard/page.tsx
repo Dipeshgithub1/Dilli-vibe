@@ -15,8 +15,10 @@ export default function DashboardPage() {
     } catch (e) {
       console.log(e);
     }
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     logout();
-    router.push("/login");
+    router.push("/login")
   };
 
   return (
@@ -29,6 +31,7 @@ export default function DashboardPage() {
             <h1 className="text-2xl font-semibold">
               Welcome, {user?.firstName} 👋
             </h1>
+            <div className="flex gap-3">
             <button
               onClick={() => router.push("/onboarding")}
               className="px-5 py-2 bg-white text-black rounded-lg hover:bg-zinc-200 transition"
@@ -41,33 +44,68 @@ export default function DashboardPage() {
             >
               Logout
             </button>
+            </div>
           </div>
 
-          {/* Card Section */}
+          {/* 🔥 User Profile Card */}
+          <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 mb-6">
+            <h2 className="text-lg font-medium mb-2">Your Profile</h2>
+
+            <p className="text-zinc-400 text-sm">
+              Email: {user?.email}
+            </p>
+
+            <p className="text-zinc-400 text-sm">
+              Preferences: {user?.preferredVibes?.join(", ") || "Not set"}
+            </p>
+
+            <p className="text-zinc-400 text-sm">
+              Budget: {user?.budgetPreference || "Not set"}
+            </p>
+
+            <p className="text-zinc-400 text-sm">
+              Going with: {user?.companyType || "Not set"}
+            </p>
+          </div>
+
+          {/* 🔥 Feature Cards */}
           <div className="grid md:grid-cols-3 gap-6">
 
-            <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
-              <h2 className="text-lg font-medium mb-2">Discover Places</h2>
+            {/* Discover */}
+            <div
+              onClick={() => router.push("/onboarding")}
+              className="cursor-pointer bg-zinc-900 p-6 rounded-2xl border border-zinc-800 hover:scale-105 transition"
+            >
+              <h2 className="text-lg font-medium mb-2">
+                Discover Places 🚀
+              </h2>
               <p className="text-zinc-400 text-sm">
                 Get recommendations based on your mood and budget.
               </p>
             </div>
 
+            {/* AI */}
             <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
-              <h2 className="text-lg font-medium mb-2">Smart AI Matching</h2>
+              <h2 className="text-lg font-medium mb-2">
+                Smart AI Matching 🧠
+              </h2>
               <p className="text-zinc-400 text-sm">
-                Personalized suggestions tailored for Delhi vibes.
+                Personalized suggestions powered by AI.
               </p>
             </div>
 
+            {/* Budget */}
             <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
-              <h2 className="text-lg font-medium mb-2">Budget Friendly</h2>
+              <h2 className="text-lg font-medium mb-2">
+                Budget Friendly 💰
+              </h2>
               <p className="text-zinc-400 text-sm">
-                Stay within your budget while enjoying your day.
+                Enjoy experiences within your budget.
               </p>
             </div>
 
           </div>
+
         </div>
       </div>
     </ProtectedRoute>

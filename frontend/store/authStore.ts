@@ -8,7 +8,10 @@ interface User {
   firstName: string;
   lastName: string;
   email: string;
-  isOnboarded: boolean;  
+  isOnboarded: boolean;
+  preferredVibes?: string[];
+  budgetPreference?: string;
+  companyType?: string;
 }
 
 interface AuthState {

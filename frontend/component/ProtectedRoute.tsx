@@ -11,7 +11,7 @@ interface props {
 }
 
 export default function ProtectedRoute({children} : props){
-    const {user,loading,fetchMe} = useAuthStore()
+    const {user,loading,fetchMe} = useAuthStore();
     const router = useRouter();
 
 
@@ -22,11 +22,14 @@ export default function ProtectedRoute({children} : props){
         router.push("/login");
         return;
       }
-      fetchMe()
-    },[fetchMe, router])
+      if(!user){
+        fetchMe()
+      }
+    },[fetchMe, router,user])
 
    useEffect(() => {
   if (!loading && !user) {
+    localStorage.removeItem("token")
     router.push("/login");
   }
 }, [user, loading, router]);
@@ -35,10 +38,14 @@ export default function ProtectedRoute({children} : props){
 
     if (loading)
         return (
-      <div className="flex items-center justify-center min-h-screen bg-zinc-950 text-white">
+      <div className="flex items-center justify-center min-h-screen bg-orange-950 text-white">
         Loading...
       </div>
         )
+
+        if(!user){
+          return null;
+        }
 
     return <>{children}</>
 

@@ -30,8 +30,10 @@ export default function OnboardingPage() {
 
   const handleSubmit = async () => {
 
-    if (!selectedMood.length || !budget) return;
-
+    if (!selectedMood.length || !budget) {
+      alert("Please select mood and budget");
+      return;
+    }
     setLoading(true);
 
     try {
@@ -41,14 +43,20 @@ export default function OnboardingPage() {
         companyType: people,
       });
 
-      // await new Promise(resolve => setTimeout(resolve, 500));
-
+      
       //ai recommended call
+      const searchText = `${selectedMood.join(" ")} ${people} ${budget}`;
+
+    // 🔥 Save for later (AI explanation, detail page)
+      localStorage.setItem("lastSearch", searchText);
+
+      await useAuthStore.getState().fetchMe();
+
 
       const res = await api.post(
   "/recommendations?page=1&limit=6",
   {
-    searchText: `${selectedMood.join(" ")} ${people} ${budget}`,
+    searchText,
   }
 );
 
