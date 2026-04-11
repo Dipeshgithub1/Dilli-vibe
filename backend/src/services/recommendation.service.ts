@@ -2,7 +2,7 @@ import { User } from "../model/user.model";
 import { Experience } from "../model/experience.model";
 import { moodToTags } from "../util/moodTags";
 import { Mood } from "../util/moodTags";
-import { getMoodTags } from "./gemini.service";
+import { getMoodTags, getPlaceExplanation } from "./gemini.service";
 
 export const getRecommendationsForUser = async (
   userId: string,
@@ -88,4 +88,56 @@ export const getRecommendationsForUser = async (
     page,
     totalPages: Math.ceil(total / limit),
   };
+};
+
+export const getPlaceById = async (placeId: string, userId: string) => {
+  const place = await Experience.findById(placeId);
+  
+  if (!place) {
+    throw new Error("Place not found");
+  }
+
+  const user = await User.findById(userId);
+  const explanation = await getPlaceExplanation(place, user);
+  
+  return {
+    data: place,
+    explanation: explanation.explanation,
+    bestTime: explanation.bestTime,
+  };
+};
+
+export const getRelatedPlaces = async (
+  placeId: string,
+  userId: string,
+  limit: number = 3
+) => {
+  const place = await Experience.findById(placeId);
+  
+  if (!place) {
+    throw new Error("Place not found");
+  }
+
+  const user = await User.findById(userId);
+  let userTags: string[] = [];
+
+  if (user?.preferredVibes?.length) {
+    user.preferredVibes.forEach((mood: Mood) => {
+      userTags.push(...moodToTags[mood]);
+    });
+  }
+
+  const placeTags = place.tags || [];
+  const matchingTags = [...new Set([...placeTags, ...userTags])];
+
+  const related = await Experience.find({
+    _id: { $ne: placeId },
+    isActive: true,
+    tags: { $in: matchingTags },
+  })
+    .limit(limit)
+    .sort({ rating: -1 })
+    .lean();
+
+  return related;
 };

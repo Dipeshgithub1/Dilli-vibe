@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import api from "../../../lib/axios";
 
 interface Place {
   _id: string;
@@ -42,27 +43,39 @@ export default function RecommendationsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem("recommendations");
-
-    if (stored) {
+    const fetchRecommendations = async () => {
       try {
-        const parsed = JSON.parse(stored);
-        setPlaces(parsed.data || parsed);
-      } catch (error) {
-        console.error("Invalid stored data");
-        router.push("/dashboard");
-      }
-    } else {
-      router.push("/dashboard");
-    }
+        const searchText = localStorage.getItem("lastSearch") || "";
 
-    setLoading(false);
+        const res = await api.post(
+          "/recommendations?page=1&limit=6",
+          { searchText }
+        );
+
+        setPlaces(res.data.data);
+      } catch (err) {
+        console.error("Failed to fetch recommendations", err);
+        router.push("/dashboard");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecommendations();
   }, [router]);
 
+  /* 🔥 LOADING SKELETON */
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white">
-        Loading recommendations...
+      <div className="min-h-screen bg-zinc-950 text-white p-6">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="bg-zinc-800 h-60 rounded-2xl animate-pulse"
+            />
+          ))}
+        </div>
       </div>
     );
   }
@@ -71,7 +84,7 @@ export default function RecommendationsPage() {
     <div className="min-h-screen bg-zinc-950 text-white p-6">
       <div className="max-w-6xl mx-auto">
 
-        {/* Header */}
+        {/* 🔥 Header */}
         <div className="flex justify-between items-center mb-10">
           <h1 className="text-2xl font-semibold">
             Your Perfect Vibes ✨
@@ -85,12 +98,21 @@ export default function RecommendationsPage() {
           </button>
         </div>
 
-        {/* Empty State */}
+        {/* 🔥 Empty State */}
         {places.length === 0 ? (
-          <div className="text-center text-zinc-400 mt-20">
-            No recommendations found.
+          <div className="text-center mt-20">
+            <p className="text-zinc-400 mb-4">
+              No recommendations found.
+            </p>
+            <button
+              onClick={() => router.push("/onboarding")}
+              className="px-4 py-2 bg-orange-500 rounded-lg"
+            >
+              Try Again
+            </button>
           </div>
         ) : (
+
           <div className="grid md:grid-cols-3 gap-6">
 
             {places.map((place) => (
@@ -99,14 +121,15 @@ export default function RecommendationsPage() {
                 className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-white transition duration-300 hover:scale-[1.02]"
               >
 
-                {/* Image */}
-                {place.image && (
-                  <img
-                    src={place.image}
-                    alt={place.name}
-                    className="w-full h-40 object-cover rounded-lg mb-4"
-                  />
-                )}
+                {/* 🔥 Image */}
+                <img
+                  src={
+                    place.image ||
+                    "https://source.unsplash.com/400x300/?delhi,cafe"
+                  }
+                  alt={place.name}
+                  className="w-full h-40 object-cover rounded-lg mb-4"
+                />
 
                 {/* Name */}
                 <h2 className="text-lg font-semibold mb-1">
@@ -145,9 +168,12 @@ export default function RecommendationsPage() {
                 {/* Budget + Rating */}
                 <div className="flex justify-between items-center mb-4 text-sm">
                   <span
-                    className={`font-semibold ${budgetColorMap[place.budgetPreference] || "text-zinc-300"}`}
+                    className={`font-semibold ${
+                      budgetColorMap[place.budgetPreference] || "text-zinc-300"
+                    }`}
                   >
-                    {budgetDisplayMap[place.budgetPreference] || place.budgetPreference}
+                    {budgetDisplayMap[place.budgetPreference] ||
+                      place.budgetPreference}
                   </span>
 
                   <span className="text-zinc-300">
@@ -155,9 +181,14 @@ export default function RecommendationsPage() {
                   </span>
                 </div>
 
-                {/* Button */}
-                <button className="w-full py-2 rounded-lg bg-white text-black hover:bg-zinc-200 transition">
-                  View Details
+                {/* 🔥 View Button */}
+                <button
+                  onClick={() =>
+                    router.push(`/recommendations/${place._id}`)
+                  }
+                  className="w-full py-2 rounded-lg bg-white text-black hover:bg-zinc-200 transition"
+                >
+                  View Details →
                 </button>
 
               </div>
@@ -165,7 +196,6 @@ export default function RecommendationsPage() {
 
           </div>
         )}
-
       </div>
     </div>
   );

@@ -152,3 +152,61 @@ Example:
     return FALLBACK_TAGS;
   }
 };
+
+export const getPlaceExplanation = async (place: any, user: any) => {
+  try {
+    const prompt = `
+You are a Delhi city expert. Given a place and user preferences, explain why this place is recommended.
+
+Place: ${place.name}
+Area: ${place.area}
+Tags: ${place.tags?.join(", ")}
+Budget: ${place.budgetPreference}
+Suitable for: ${place.suitableFor?.join(", ")}
+
+User preferences:
+Vibes: ${user.preferredVibes?.join(", ")}
+Budget: ${user.budgetPreference}
+
+Respond in JSON format:
+{
+  "explanation": "2-3 sentences explaining why this place matches the user's vibes",
+  "bestTime": "Best time to visit (e.g., weekday morning, Saturday evening)"
+}
+
+Only output the JSON.
+    `;
+
+    const responseText = await callGemini(prompt);
+
+    if (!responseText) {
+      return {
+        explanation: "A great spot that matches your vibes!",
+        bestTime: "Anytime works, but weekdays are less crowded.",
+      };
+    }
+
+    const match = responseText.match(/\{.*\}/s);
+    if (!match) {
+      return {
+        explanation: "A great spot that matches your vibes!",
+        bestTime: "Anytime works, but weekdays are less crowded.",
+      };
+    }
+
+    try {
+      const parsed = JSON.parse(match[0]);
+      return parsed;
+    } catch {
+      return {
+        explanation: "A great spot that matches your vibes!",
+        bestTime: "Anytime works, but weekdays are less crowded.",
+      };
+    }
+  } catch (error) {
+    return {
+      explanation: "A great spot that matches your vibes!",
+      bestTime: "Anytime works, but weekdays are less crowded.",
+    };
+  }
+};
