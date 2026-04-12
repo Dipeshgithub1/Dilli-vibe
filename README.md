@@ -18,7 +18,6 @@ Traditional platforms like Maps or Zomato:
 **“Where should I go right now based on my mood?”**
 
 ---
-
 ## 💡 Solution  
 
 Dilli-Vibe transforms place discovery into a **mood-first experience**.
@@ -52,14 +51,14 @@ And get:
 - Framer Motion  
 
 **Backend**
-- Node.js  
+- Node.js  and Typescript
 - Express.js  
 - MongoDB + Mongoose  
 
 **AI Layer**
 - Custom Recommendation Engine  
-- LLM-ready architecture (future integration)
+- Gemini LLM-ready architecture (future integration)
 
 ---
 
-## 🏗️ Architecture  
+
