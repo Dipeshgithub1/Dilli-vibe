@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import api from "../../../../lib/axios";
-import ViewPlace from "../../ViewPlace";
+import ViewPlace from "../ViewPlace";
 
 interface Place {
   _id: string;

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "../../../store/authStore";
 import api from "../../../lib/axios";
+import { motion } from "framer-motion";
 
 /* Mood Options */
 const moods = [
@@ -79,7 +80,17 @@ export default function OnboardingPage() {
 
     <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center px-4">
 
-      <div className="w-full max-w-3xl">
+      {/* Background glow */}
+      <div className="absolute w-100 h-100 bg-orange-500/20 blur-[150px] rounded-full top-30 left-30" />
+      <div className="absolute w-112.5 h-112.5 bg-red-500/20 blur-[160px] rounded-full bottom-37.5 right-37.5" />
+
+      <div className="w-full max-w-3xl relative">
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
 
         <h1 className="text-3xl font-semibold text-center mb-2">
           What’s your vibe today?
@@ -198,7 +209,7 @@ export default function OnboardingPage() {
         <button
           onClick={handleSubmit}
           disabled={loading || !selectedMood.length || !budget}
-          className="w-full py-3 rounded-xl bg-orange-500 text-white font-medium hover:bg-orange-400 transition disabled:opacity-50 flex items-center justify-center gap-2"
+          className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium hover:from-orange-400 hover:to-red-400 transition disabled:opacity-50 flex items-center justify-center gap-2"
         >
 
           {loading ? (
@@ -213,6 +224,8 @@ export default function OnboardingPage() {
           )}
 
         </button>
+
+        </motion.div>
 
       </div>
 

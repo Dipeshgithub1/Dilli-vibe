@@ -81,7 +81,12 @@ export default function RecommendationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white p-6">
+    <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white p-6">
+
+      {/* Background glow */}
+      <div className="absolute w-100 h-100 bg-orange-500/20 blur-[150px] rounded-full top-30 left-30" />
+      <div className="absolute w-112.5 h-112.5 bg-red-500/20 blur-[160px] rounded-full bottom-37.5 right-37.5" />
+
       <div className="max-w-6xl mx-auto">
 
         {/* 🔥 Header */}
@@ -186,7 +191,7 @@ export default function RecommendationsPage() {
                   onClick={() =>
                     router.push(`/recommendations/${place._id}`)
                   }
-                  className="w-full py-2 rounded-lg bg-white text-black hover:bg-zinc-200 transition"
+                  className="w-full py-2 rounded-lg bg-linear-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400 transition text-black font-medium"
                 >
                   View Details →
                 </button>
