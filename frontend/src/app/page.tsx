@@ -27,7 +27,7 @@ export default function HomePage() {
   {/* Accent Light Streaks - This mimics the "lines" in your image */}
   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full opacity-50">
     <div className="absolute top-0 left-[20%] w-px h-full bg-orange-400/20 blur-sm rotate-15"></div>
-    <div className="absolute top-0 right-[20%] w-1px h-full bg-orange-300/20 blur-sm -rotate-15deg"></div>
+    <div className="absolute top-0 right-[20%] w-px h-full bg-orange-300/20 blur-sm -rotate-15"></div>
   </div>
 </motion.div>
 

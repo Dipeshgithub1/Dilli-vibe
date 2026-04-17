@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import api from "../../../../lib/axios";
 import ViewPlace from "../ViewPlace";
+import AIThinkingLoader from "../../../../component/AIThinkingLoader";
 
 interface Place {
   _id: string;
@@ -58,13 +59,7 @@ export default function PlaceDetailPage() {
   };
 
   if (loading || !place) {
-    return (
-      <div className="min-h-screen bg-zinc-950 text-white p-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-zinc-900 h-96 rounded-2xl animate-pulse" />
-        </div>
-      </div>
-    );
+    return <AIThinkingLoader />;
   }
 
   return (
