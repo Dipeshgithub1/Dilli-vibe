@@ -17,6 +17,10 @@ interface Props {
   explanation: string;
   bestTime: string;
   onBack: () => void;
+  onPrev?: () => void;
+  onNext?: () => void;
+  hasPrev?: boolean;
+  hasNext?: boolean;
 }
 
 export default function ViewPlace({
@@ -24,6 +28,10 @@ export default function ViewPlace({
   explanation,
   bestTime,
   onBack,
+  onPrev,
+  onNext,
+  hasPrev,
+  hasNext,
 }: Props) {
   return (
     <div className="min-h-screen bg-zinc-950 text-white relative overflow-hidden px-4 py-6">
@@ -35,17 +43,42 @@ export default function ViewPlace({
       <div className="max-w-4xl mx-auto relative z-10">
 
         {/* 🔙 Back */}
-        <button
-          onClick={onBack}
-          className="mb-6 text-sm text-zinc-400 hover:text-white transition"
-        >
-          ← Back
-        </button>
+        <div className="flex items-center justify-between mb-6">
+          <button
+            onClick={onBack}
+            className="text-sm text-zinc-400 hover:text-white transition"
+          >
+            ← Back
+          </button>
+
+          {(onPrev || onNext) && (
+            <div className="flex gap-2">
+              {onPrev && (
+                <button
+                  onClick={onPrev}
+                  disabled={!hasPrev}
+                  className="px-3 py-1.5 text-sm bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg hover:bg-zinc-700 transition"
+                >
+                  ← Prev
+                </button>
+              )}
+              {onNext && (
+                <button
+                  onClick={onNext}
+                  disabled={!hasNext}
+                  className="px-3 py-1.5 text-sm bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg hover:bg-zinc-700 transition"
+                >
+                  Next →
+                </button>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* 🖼️ HERO IMAGE */}
         <div className="relative rounded-2xl overflow-hidden mb-6 group">
           <img
-            src={place.image || "/images/fallback.jpg"}
+            src={place.image || `https://picsum.photos/seed/${place._id}/800/400`}
             alt={place.name}
             className="w-full h-72 object-cover transition-transform duration-500 group-hover:scale-105"
           />
@@ -80,9 +113,17 @@ export default function ViewPlace({
             <h3 className="font-semibold text-orange-400 mb-2 flex items-center gap-2">
               🤖 Why this place?
             </h3>
-            <p className="text-zinc-300 leading-relaxed">
-              {explanation || "Matches your vibe and preferences perfectly."}
-            </p>
+            {explanation ? (
+              <p className="text-zinc-300 leading-relaxed">
+                {explanation}
+              </p>
+            ) : (
+              <div className="space-y-2 animate-pulse">
+                <div className="h-3 bg-zinc-700 rounded w-3/4" />
+                <div className="h-3 bg-zinc-700 rounded w-2/3" />
+                <div className="h-3 bg-zinc-700 rounded w-1/2" />
+              </div>
+            )}
           </div>
 
           {/* 📝 DESCRIPTION */}

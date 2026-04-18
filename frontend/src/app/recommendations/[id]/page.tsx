@@ -18,7 +18,11 @@ interface Place {
   image?: string;
 }
 
-export default function PlaceDetailPage() {
+interface Props {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default function PlaceDetailPage({ searchParams }: Props) {
   const router = useRouter();
   const params = useParams();
   const placeId = params.id as string;
@@ -28,19 +32,34 @@ export default function PlaceDetailPage() {
   const [explanation, setExplanation] = useState<string>("");
   const [bestTime, setBestTime] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [allPlaceIds, setAllPlaceIds] = useState<string[]>([]);
 
   useEffect(() => {
+    if (!placeId) return;
+
     const fetchPlaceAndRelated = async () => {
       try {
-        const [placeRes, relatedRes] = await Promise.all([
+        setLoading(true);
+
+        const searchText = localStorage.getItem("lastSearch") || "";
+
+        const [placeRes, allRes, relatedRes] = await Promise.all([
           api.get(`/recommendations/place/${placeId}`),
+          api.post("/recommendations?page=1&limit=100", { searchText }),
           api.get(`/recommendations/related/${placeId}?limit=3`),
         ]);
+
+        const allPlaces = allRes.data.data || [];
+        const placeIds = allPlaces.map((p: Place) => p._id);
+        const idx = placeIds.indexOf(placeId);
 
         setPlace(placeRes.data.data);
         setRelatedPlaces(relatedRes.data.data || []);
         setExplanation(placeRes.data.explanation || "");
         setBestTime(placeRes.data.bestTime || "");
+        setCurrentIndex(idx);
+        setAllPlaceIds(placeIds);
       } catch (err) {
         console.error("Failed to fetch place", err);
         router.push("/recommendations");
@@ -49,31 +68,47 @@ export default function PlaceDetailPage() {
       }
     };
 
-    if (placeId) {
-      fetchPlaceAndRelated();
-    }
+    fetchPlaceAndRelated();
   }, [placeId, router]);
 
   const handleBack = () => {
     router.push("/recommendations");
   };
 
-  if (loading || !place) {
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      router.push(`/recommendations/${allPlaceIds[currentIndex - 1]}`);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentIndex < allPlaceIds.length - 1) {
+      router.push(`/recommendations/${allPlaceIds[currentIndex + 1]}`);
+    }
+  };
+
+  if (loading && !place) {
     return <AIThinkingLoader />;
   }
 
   return (
     <div>
+      {place &&(
       <ViewPlace
         place={place}
         explanation={explanation}
         bestTime={bestTime}
         onBack={handleBack}
+        onPrev={handlePrev}
+        onNext={handleNext}
+        hasPrev={currentIndex > 0}
+        hasNext={currentIndex < allPlaceIds.length - 1}
       />
+      )}
 
       {relatedPlaces.length > 0 && (
         <div className="max-w-4xl mx-auto px-6 pb-10">
-          <h2 className="text-xl font-semibold mb-6">Related Places</h2>
+          <h2 className="text-xl font-semibold mb-6">You may also like ✨</h2>
           <div className="grid md:grid-cols-3 gap-4">
             {relatedPlaces.map((related) => (
               <div
@@ -82,11 +117,11 @@ export default function PlaceDetailPage() {
                 className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 cursor-pointer hover:border-white transition"
               >
                 <img
-                  src={related.image || "https://source.unsplash.com/400x300/?delhi,cafe"}
+                  src={related.image || `https://picsum.photos/seed/${related._id}/400/300`}
                   alt={related.name}
                   className="w-full h-24 object-cover rounded-lg mb-3"
                 />
-                <h3 className="font-medium text-sm">{related.name}</h3>
+                <h3 className="font-medium text-sm group-hover:text-orange-400 transition">{related.name}</h3>
                 <p className="text-xs text-zinc-500">{related.area}</p>
               </div>
             ))}

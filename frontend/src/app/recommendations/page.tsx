@@ -41,28 +41,41 @@ export default function RecommendationsPage() {
   const router = useRouter();
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const fetchRecommendations = async (pageNum: number) => {
+    setLoading(true);
+    try {
+      const searchText = localStorage.getItem("lastSearch") || "";
+
+      const res = await api.post(
+        `/recommendations?page=${pageNum}&limit=6`,
+        { searchText }
+      );
+
+      setPlaces(res.data.data);
+      setPage(pageNum);
+      setTotalPages(res.data.totalPages);
+    } catch (err) {
+      console.error("Failed to fetch recommendations", err);
+      router.push("/dashboard");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchRecommendations = async () => {
-      try {
-        const searchText = localStorage.getItem("lastSearch") || "";
-
-        const res = await api.post(
-          "/recommendations?page=1&limit=6",
-          { searchText }
-        );
-
-        setPlaces(res.data.data);
-      } catch (err) {
-        console.error("Failed to fetch recommendations", err);
-        router.push("/dashboard");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRecommendations();
+    fetchRecommendations(1);
   }, [router]);
+
+  const handlePrev = () => {
+    if (page > 1) fetchRecommendations(page - 1);
+  };
+
+  const handleNext = () => {
+    if (page < totalPages) fetchRecommendations(page + 1);
+  };
 
   /* 🔥 LOADING SKELETON */
   if (loading) {
@@ -100,6 +113,27 @@ export default function RecommendationsPage() {
             className="px-5 py-2 bg-white text-black rounded-lg hover:bg-zinc-200 transition"
           >
             Try Again
+          </button>
+        </div>
+
+        {/* 🔥 Pagination Controls */}
+        <div className="flex justify-center items-center gap-4 mb-6">
+          <button
+            onClick={handlePrev}
+            disabled={page <= 1 || loading}
+            className="px-4 py-2 bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg hover:bg-zinc-700 transition"
+          >
+            ← Previous
+          </button>
+          <span className="text-zinc-400">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={handleNext}
+            disabled={page >= totalPages || loading}
+            className="px-4 py-2 bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg hover:bg-zinc-700 transition"
+          >
+            Next →
           </button>
         </div>
 
