@@ -48,6 +48,18 @@ export default function RecommendationsPage() {
     setLoading(true);
     try {
       const searchText = localStorage.getItem("lastSearch") || "";
+      const cachedIds = localStorage.getItem("recommendationPlaceIds");
+      const shouldFetchAll = pageNum === 1 && !cachedIds;
+
+      if (shouldFetchAll) {
+        const allRes = await api.post(
+          "/recommendations?page=1&limit=100",
+          { searchText }
+        );
+        const allPlaces = allRes.data.data || [];
+        const allPlaceIds = allPlaces.map((p: Place) => p._id);
+        localStorage.setItem("recommendationPlaceIds", JSON.stringify(allPlaceIds));
+      }
 
       const res = await api.post(
         `/recommendations?page=${pageNum}&limit=6`,
@@ -64,10 +76,10 @@ export default function RecommendationsPage() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
+ useEffect(() => {
     fetchRecommendations(1);
   }, [router]);
+
 
   const handlePrev = () => {
     if (page > 1) fetchRecommendations(page - 1);

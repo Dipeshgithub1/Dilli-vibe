@@ -18,11 +18,7 @@ interface Place {
   image?: string;
 }
 
-interface Props {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}
-
-export default function PlaceDetailPage({ searchParams }: Props) {
+export default function PlaceDetailPage() {
   const router = useRouter();
   const params = useParams();
   const placeId = params.id as string;
@@ -42,23 +38,28 @@ export default function PlaceDetailPage({ searchParams }: Props) {
       try {
         setLoading(true);
 
-        const searchText = localStorage.getItem("lastSearch") || "";
+        const storedIds = localStorage.getItem("recommendationPlaceIds");
+        let placeIds = storedIds ? JSON.parse(storedIds) : [];
 
-        const [placeRes, allRes, relatedRes] = await Promise.all([
+        if (placeIds.length === 0 || !placeIds.includes(placeId)) {
+          const searchText = localStorage.getItem("lastSearch") || "";
+          const allRes = await api.post("/recommendations?page=1&limit=100", { searchText });
+          const allPlaces = allRes.data.data || [];
+          placeIds = allPlaces.map((p: Place) => p._id);
+          localStorage.setItem("recommendationPlaceIds", JSON.stringify(placeIds));
+        }
+
+        const idx = placeIds.indexOf(placeId);
+        const [placeRes, relatedRes] = await Promise.all([
           api.get(`/recommendations/place/${placeId}`),
-          api.post("/recommendations?page=1&limit=100", { searchText }),
           api.get(`/recommendations/related/${placeId}?limit=3`),
         ]);
-
-        const allPlaces = allRes.data.data || [];
-        const placeIds = allPlaces.map((p: Place) => p._id);
-        const idx = placeIds.indexOf(placeId);
 
         setPlace(placeRes.data.data);
         setRelatedPlaces(relatedRes.data.data || []);
         setExplanation(placeRes.data.explanation || "");
         setBestTime(placeRes.data.bestTime || "");
-        setCurrentIndex(idx);
+        setCurrentIndex(idx >= 0 ? idx : 0);
         setAllPlaceIds(placeIds);
       } catch (err) {
         console.error("Failed to fetch place", err);
