@@ -1,0 +1,28 @@
+config:
+  target: "http://localhost:3001"
+
+phases:
+  - duration: 60
+    arrivalRate: 10
+
+scenarios:
+  - flow:
+
+      # 🔐 LOGIN
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "test@example.com"
+            password: "12345678"
+          capture:
+            - json: "$.data.token"
+              as: "authToken"
+
+      # 🧪 DEBUG (optional)
+      - log: "TOKEN = {{ authToken }}"
+
+      # 📊 API CALL
+      - get:
+          url: "/api/recommendations?page=1&limit=6"
+          headers:
+            Authorization: "Bearer {{ authToken }}"

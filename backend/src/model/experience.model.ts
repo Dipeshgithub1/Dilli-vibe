@@ -110,6 +110,7 @@ const experienceSchema = new Schema <IExperience>(
 
 //index for search and recommemends
 
+experienceSchema.index({ isActive: 1, tags: 1 });
 experienceSchema.index({ area: 1, budgetPreference: 1 });
 experienceSchema.index({ rating: -1 });
 experienceSchema.index({ popularityScore: -1 });
