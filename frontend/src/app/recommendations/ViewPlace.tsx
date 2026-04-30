@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+
 interface Place {
   _id: string;
   name: string;
@@ -23,6 +25,9 @@ interface Props {
   hasNext?: boolean;
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
+  weather?: { temp: number; description: string; humidity: number } | null;
+  weatherLoading?: boolean;
+  onShare?: () => void;
 }
 
 export default function ViewPlace({
@@ -36,6 +41,9 @@ export default function ViewPlace({
   hasNext,
   isFavorite = false,
   onToggleFavorite,
+  weather,
+  weatherLoading = false,
+  onShare,
 }: Props) {
   return (
     <div className="min-h-screen bg-zinc-950 text-white relative overflow-hidden px-4 py-6">
@@ -46,13 +54,13 @@ export default function ViewPlace({
 
       <div className="max-w-4xl mx-auto relative z-10">
 
-        {/* 🔙 Back + Favorite */}
+        {/* 🔙 Back + Actions */}
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={onBack}
-            className="text-sm text-zinc-400 hover:text-white transition"
+            className="text-sm text-zinc-400 hover:text-white transition flex items-center gap-1"
           >
-            ← Back
+            ← Back to all
           </button>
 
           <div className="flex items-center gap-2">
@@ -75,7 +83,7 @@ export default function ViewPlace({
               </button>
             )}
 
-            {/* ❤️ Favorite Button */}
+            {/* ❤️ Favorite */}
             {onToggleFavorite && (
               <button
                 onClick={onToggleFavorite}
@@ -83,6 +91,17 @@ export default function ViewPlace({
                 aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
               >
                 <span className="text-lg">{isFavorite ? "❤️" : "🤍"}</span>
+              </button>
+            )}
+
+            {/* 📤 Share */}
+            {onShare && (
+              <button
+                onClick={onShare}
+                className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition"
+                aria-label="Share this place"
+              >
+                <span className="text-lg">📤</span>
               </button>
             )}
           </div>
@@ -113,16 +132,47 @@ export default function ViewPlace({
         {/* 📦 MAIN CARD */}
         <div className="bg-zinc-900/70 backdrop-blur-lg border border-zinc-800 rounded-2xl p-6 md:p-8 shadow-xl shadow-black/30 space-y-6">
 
-          {/* 🌤️ WEATHER INSIGHT */}
-          <div className="bg-zinc-900 border border-zinc-800 p-4 rounded-xl">
-            <p className="text-xs text-zinc-400 mb-1">🌤️ Today’s Insight</p>
-            <p className="text-sm text-zinc-300">
-              It's quite hot today — indoor places like cafes are a better choice.
-            </p>
-          </div>
+          {/* 🌤️ REAL WEATHER INSIGHT */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-linear-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/30 p-5 rounded-xl"
+          >
+            <div className="flex items-start justify-between mb-2">
+              <h3 className="font-semibold text-blue-400 flex items-center gap-2">
+                🌤️ Current Weather in {place.area}
+              </h3>
+              {weatherLoading ? (
+                <div className="animate-spin text-sm">⟳</div>
+              ) : weather ? (
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-white">{weather.temp}°C</p>
+                  <p className="text-xs text-zinc-400 capitalize">{weather.description}</p>
+                </div>
+              ) : (
+                <span className="text-zinc-500 text-sm">N/A</span>
+              )}
+            </div>
+            {weather && (
+              <div className="flex items-center gap-4 text-sm text-zinc-300">
+                <span>💧 Humidity: {weather.humidity}%</span>
+                <span className="text-xs text-zinc-500">
+                  {weather.temp > 30 ? "🔥 It's hot! Indoor spots recommended." :
+                   weather.temp < 15 ? "🧥 Bundle up before heading out." :
+                   weather.temp > 25 ? "☀️ Perfect for outdoor exploration." :
+                   "🌤️ Great weather for your visit!"}
+                </span>
+              </div>
+            )}
+          </motion.div>
 
           {/* 🤖 AI EXPLANATION */}
-          <div className="bg-linear-to-r from-orange-500/10 to-red-500/10 border border-orange-500/30 p-5 rounded-xl">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-linear-to-r from-orange-500/10 to-red-500/10 border border-orange-500/30 p-5 rounded-xl"
+          >
             <h3 className="font-semibold text-orange-400 mb-2 flex items-center gap-2">
               🤖 Why this place?
             </h3>
@@ -137,21 +187,30 @@ export default function ViewPlace({
                 <div className="h-3 bg-zinc-700 rounded w-1/2" />
               </div>
             )}
-          </div>
+          </motion.div>
 
           {/* 📝 DESCRIPTION */}
           <p className="text-zinc-300 leading-relaxed">
             {place.description}
           </p>
 
-          {/* 📍 MAP BUTTON */}
-          <a
-            href={`https://www.google.com/maps/search/?api=1&query=${place.name} ${place.area} Delhi`}
-            target="_blank"
-            className="block w-full text-center py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl transition font-medium"
-          >
-            📍 Open in Google Maps
-          </a>
+          {/* 📍 MAP BUTTONS */}
+          <div className="grid grid-cols-2 gap-3">
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + " " + place.area + " Delhi")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl transition font-medium"
+            >
+              📍 Google Maps
+            </a>
+            <button
+              onClick={onShare}
+              className="flex items-center justify-center gap-2 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl transition font-medium"
+            >
+              📤 Share
+            </button>
+          </div>
 
           {/* ⏰ BEST TIME */}
           <div className="bg-linear-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/30 p-5 rounded-xl">

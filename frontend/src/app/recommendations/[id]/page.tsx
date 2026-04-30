@@ -6,6 +6,7 @@ import api from "../../../../lib/axios";
 import ViewPlace from "../ViewPlace";
 import AIThinkingLoader from "../../../../component/AIThinkingLoader";
 import toast from "react-hot-toast";
+import { useWeather } from "../../../lib/useWeather";
 
 interface Place {
   _id: string;
@@ -32,6 +33,9 @@ export default function PlaceDetailPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [allPlaceIds, setAllPlaceIds] = useState<string[]>([]);
   const [isFavorite, setIsFavorite] = useState(false);
+
+  // Weather based on place area
+  const { weather, loading: weatherLoading } = useWeather(place?.area || "Delhi");
 
   const getFavorites = (): Place[] => {
     try {
@@ -66,46 +70,38 @@ export default function PlaceDetailPage() {
     window.dispatchEvent(new Event("storage"));
   };
 
-  useEffect(() => {
-    if (!placeId) return;
+  const sharePlace = async () => {
+    if (!place) return;
 
-    const fetchPlaceAndRelated = async () => {
+    const shareText = `Check out ${place.name} in ${place.area}! ${place.description.substring(0, 100)}... 🎯 ${place.budgetPreference} budget • ${place.moods.join(", ")}`;
+    const shareUrl = `${window.location.origin}/recommendations/${place._id}`;
+
+    if (navigator.share) {
       try {
-        setLoading(true);
-
-        const storedIds = localStorage.getItem("recommendationPlaceIds");
-        let placeIds = storedIds ? JSON.parse(storedIds) : [];
-
-        if (placeIds.length === 0 || !placeIds.includes(placeId)) {
-          const searchText = localStorage.getItem("lastSearch") || "";
-          const allRes = await api.post("/recommendations?page=1&limit=100", { searchText });
-          const allPlaces = allRes.data.data || [];
-          placeIds = allPlaces.map((p: Place) => p._id);
-          localStorage.setItem("recommendationPlaceIds", JSON.stringify(placeIds));
-        }
-
-        const idx = placeIds.indexOf(placeId);
-        const [placeRes, relatedRes] = await Promise.all([
-          api.get(`/recommendations/place/${placeId}`),
-          api.get(`/recommendations/related/${placeId}?limit=3`),
-        ]);
-
-        setPlace(placeRes.data.data);
-        setRelatedPlaces(relatedRes.data.data || []);
-        setExplanation(placeRes.data.explanation || "");
-        setBestTime(placeRes.data.bestTime || "");
-        setCurrentIndex(idx >= 0 ? idx : 0);
-        setAllPlaceIds(placeIds);
+        await navigator.share({
+          title: place.name,
+          text: shareText,
+          url: shareUrl,
+        });
+        toast.success("Shared successfully!");
       } catch (err) {
-        console.error("Failed to fetch place", err);
-        router.push("/recommendations");
-      } finally {
-        setLoading(false);
+        if (err !== "AbortError") {
+          copyToClipboard(shareUrl);
+        }
       }
-    };
+    } else {
+      copyToClipboard(shareUrl);
+    }
+  };
 
-    fetchPlaceAndRelated();
-  }, [placeId, router]);
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("Link copied to clipboard 📋");
+    } catch {
+      toast.error("Failed to copy link");
+    }
+  };
 
   const handleBack = () => {
     router.push("/recommendations");
@@ -123,25 +119,37 @@ export default function PlaceDetailPage() {
     }
   };
 
+  // Save to recently viewed
+  useEffect(() => {
+    if (!place) return;
+    const recent = JSON.parse(localStorage.getItem("recentlyViewed") || "[]");
+    const filtered = recent.filter((p: Place) => p._id !== place._id);
+    const updated = [place, ...filtered].slice(0, 5);
+    localStorage.setItem("recentlyViewed", JSON.stringify(updated));
+  }, [place]);
+
   if (loading && !place) {
     return <AIThinkingLoader />;
   }
 
   return (
     <div>
-      {place &&(
-      <ViewPlace
-        place={place}
-        explanation={explanation}
-        bestTime={bestTime}
-        onBack={handleBack}
-        onPrev={handlePrev}
-        onNext={handleNext}
-        hasPrev={currentIndex > 0}
-        hasNext={currentIndex < allPlaceIds.length - 1}
-        isFavorite={isFavorite}
-        onToggleFavorite={toggleFavorite}
-      />
+      {place && (
+        <ViewPlace
+          place={place}
+          explanation={explanation}
+          bestTime={bestTime}
+          onBack={handleBack}
+          onPrev={handlePrev}
+          onNext={handleNext}
+          hasPrev={currentIndex > 0}
+          hasNext={currentIndex < allPlaceIds.length - 1}
+          isFavorite={isFavorite}
+          onToggleFavorite={toggleFavorite}
+          weather={weather}
+          weatherLoading={weatherLoading}
+          onShare={sharePlace}
+        />
       )}
 
       {relatedPlaces.length > 0 && (
