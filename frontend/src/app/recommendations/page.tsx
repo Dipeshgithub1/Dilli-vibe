@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "../../../lib/axios";
+import toast from "react-hot-toast";
 
 interface Place {
   _id: string;
@@ -43,6 +44,33 @@ export default function RecommendationsPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  const getFavorites = (): Place[] => {
+    try {
+      return JSON.parse(localStorage.getItem("favorites") || "[]");
+    } catch {
+      return [];
+    }
+  };
+
+  const isFavorite = (id: string) => getFavorites().some((p) => p._id === id);
+
+  const toggleFavorite = (place: Place) => {
+    const favs = getFavorites();
+    const exists = favs.some((p: Place) => p._id === place._id);
+    let updated: Place[];
+
+    if (exists) {
+      updated = favs.filter((p: Place) => p._id !== place._id);
+      toast.success(`Removed ${place.name} from favorites`);
+    } else {
+      updated = [...favs, place];
+      toast.success(`Saved ${place.name} to favorites ❤️`);
+    }
+
+    localStorage.setItem("favorites", JSON.stringify(updated));
+    window.dispatchEvent(new Event("storage"));
+  };
 
   const fetchRecommendations = async (pageNum: number) => {
     setLoading(true);
@@ -169,79 +197,106 @@ export default function RecommendationsPage() {
             {places.map((place) => (
               <div
                 key={place._id}
-                className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-white transition duration-300 hover:scale-[1.02]"
+                className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden hover:border-orange-500 transition duration-300 hover:scale-[1.02] group"
               >
 
-                {/* 🔥 Image */}
-                <img
-                  src={
-                    place.image ||
-                    "https://source.unsplash.com/400x300/?delhi,cafe"
-                  }
-                  alt={place.name}
-                  className="w-full h-40 object-cover rounded-lg mb-4"
-                />
-
-                {/* Name */}
-                <h2 className="text-lg font-semibold mb-1">
-                  {place.name}
-                </h2>
-
-                {/* Area */}
-                <p className="text-xs text-zinc-500 mb-1">
-                  📍 {place.area}
-                </p>
-
-                {/* Suitable For */}
-                <p className="text-xs text-zinc-400 mb-2">
-                  👥 {place.suitableFor
-                    .map((type) => peopleDisplayMap[type] || type)
-                    .join(", ")}
-                </p>
-
-                {/* Mood Badges */}
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {place.moods.map((mood) => (
-                    <span
-                      key={mood}
-                      className="text-xs bg-zinc-800 px-2 py-1 rounded-md text-zinc-300"
-                    >
-                      {mood}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Description */}
-                <p className="text-zinc-400 text-sm mb-4 line-clamp-3">
-                  {place.description}
-                </p>
-
-                {/* Budget + Rating */}
-                <div className="flex justify-between items-center mb-4 text-sm">
-                  <span
-                    className={`font-semibold ${
-                      budgetColorMap[place.budgetPreference] || "text-zinc-300"
-                    }`}
+                {/* 🔥 Image + Favorite Button */}
+                <div className="relative">
+                  <img
+                    src={
+                      place.image ||
+                      `https://picsum.photos/seed/${place._id}/400/300`
+                    }
+                    alt={place.name}
+                    className="w-full h-48 object-cover"
+                  />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(place);
+                    }}
+                    className="absolute top-3 right-3 p-2 bg-black/40 rounded-full backdrop-blur-sm hover:bg-black/60 transition"
+                    aria-label={isFavorite(place._id) ? "Remove from favorites" : "Add to favorites"}
                   >
-                    {budgetDisplayMap[place.budgetPreference] ||
-                      place.budgetPreference}
-                  </span>
-
-                  <span className="text-zinc-300">
-                    ⭐ {place.rating ?? 4.5}
-                  </span>
+                    <span className="text-lg">
+                      {isFavorite(place._id) ? "❤️" : "🤍"}
+                    </span>
+                  </button>
                 </div>
 
-                {/* 🔥 View Button */}
-                <button
-                  onClick={() =>
-                    router.push(`/recommendations/${place._id}`)
-                  }
-                  className="w-full py-2 rounded-lg bg-linear-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400 transition text-black font-medium"
-                >
-                  View Details →
-                </button>
+                {/* Card Content */}
+                <div className="p-5">
+                  {/* Name */}
+                  <h2 className="text-lg font-semibold mb-1">
+                    {place.name}
+                  </h2>
 
+                  {/* Area */}
+                  <p className="text-xs text-zinc-500 mb-2">
+                    📍 {place.area}
+                  </p>
+
+                  {/* Suitable For */}
+                  <p className="text-xs text-zinc-400 mb-3">
+                    👥 {place.suitableFor
+                      .map((type) => peopleDisplayMap[type] || type)
+                      .join(", ")}
+                  </p>
+
+                  {/* Mood Badges with colors */}
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {place.moods.map((mood) => {
+                      const moodColorMap: Record<string, { bg: string; border: string; text: string }> = {
+                        romantic: { bg: "bg-pink-500/20", border: "border-pink-500/30", text: "text-pink-300" },
+                        chill: { bg: "bg-blue-500/20", border: "border-blue-500/30", text: "text-blue-300" },
+                        fun: { bg: "bg-yellow-500/20", border: "border-yellow-500/30", text: "text-yellow-300" },
+                        explore: { bg: "bg-green-500/20", border: "border-green-500/30", text: "text-green-300" },
+                        food: { bg: "bg-orange-500/20", border: "border-orange-500/30", text: "text-orange-300" },
+                        social: { bg: "bg-purple-500/20", border: "border-purple-500/30", text: "text-purple-300" },
+                      };
+                      const colors = moodColorMap[mood] || { bg: "bg-zinc-800", border: "border-zinc-700", text: "text-zinc-300" };
+                      return (
+                        <span
+                          key={mood}
+                          className={`text-xs ${colors.bg} ${colors.border} border px-2 py-1 rounded-md ${colors.text}`}
+                        >
+                          {mood}
+                        </span>
+                      );
+                    })}
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-zinc-400 text-sm mb-4 line-clamp-2">
+                    {place.description}
+                  </p>
+
+                  {/* Budget + Rating */}
+                  <div className="flex justify-between items-center mb-4 text-sm">
+                    <span
+                      className={`font-semibold ${
+                        budgetColorMap[place.budgetPreference] || "text-zinc-300"
+                      }`}
+                    >
+                      {budgetDisplayMap[place.budgetPreference] ||
+                        place.budgetPreference}
+                    </span>
+
+                    <span className="text-zinc-300">
+                      ⭐ {place.rating ?? 4.5}
+                    </span>
+                  </div>
+
+                  {/* 🔥 View Button */}
+                  <button
+                    onClick={() =>
+                      router.push(`/recommendations/${place._id}`)
+                    }
+                    className="w-full py-2 rounded-lg bg-linear-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400 transition text-black font-medium"
+                  >
+                    View Details →
+                  </button>
+                </div>
               </div>
             ))}
 

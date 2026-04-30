@@ -21,6 +21,8 @@ interface Props {
   onNext?: () => void;
   hasPrev?: boolean;
   hasNext?: boolean;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 }
 
 export default function ViewPlace({
@@ -32,6 +34,8 @@ export default function ViewPlace({
   onNext,
   hasPrev,
   hasNext,
+  isFavorite = false,
+  onToggleFavorite,
 }: Props) {
   return (
     <div className="min-h-screen bg-zinc-950 text-white relative overflow-hidden px-4 py-6">
@@ -42,7 +46,7 @@ export default function ViewPlace({
 
       <div className="max-w-4xl mx-auto relative z-10">
 
-        {/* 🔙 Back */}
+        {/* 🔙 Back + Favorite */}
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={onBack}
@@ -51,28 +55,37 @@ export default function ViewPlace({
             ← Back
           </button>
 
-          {(onPrev || onNext) && (
-            <div className="flex gap-2">
-              {onPrev && (
-                <button
-                  onClick={onPrev}
-                  disabled={!hasPrev}
-                  className="px-3 py-1.5 text-sm bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg hover:bg-zinc-700 transition"
-                >
-                  ← Prev
-                </button>
-              )}
-              {onNext && (
-                <button
-                  onClick={onNext}
-                  disabled={!hasNext}
-                  className="px-3 py-1.5 text-sm bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg hover:bg-zinc-700 transition"
-                >
-                  Next →
-                </button>
-              )}
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {onPrev && (
+              <button
+                onClick={onPrev}
+                disabled={!hasPrev}
+                className="px-3 py-1.5 text-sm bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg hover:bg-zinc-700 transition"
+              >
+                ← Prev
+              </button>
+            )}
+            {onNext && (
+              <button
+                onClick={onNext}
+                disabled={!hasNext}
+                className="px-3 py-1.5 text-sm bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg hover:bg-zinc-700 transition"
+              >
+                Next →
+              </button>
+            )}
+
+            {/* ❤️ Favorite Button */}
+            {onToggleFavorite && (
+              <button
+                onClick={onToggleFavorite}
+                className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition"
+                aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+              >
+                <span className="text-lg">{isFavorite ? "❤️" : "🤍"}</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* 🖼️ HERO IMAGE */}

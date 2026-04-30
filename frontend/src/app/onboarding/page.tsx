@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "../../../store/authStore";
 import api from "../../../lib/axios";
 import { motion } from "framer-motion";
@@ -20,6 +20,7 @@ const moods = [
 export default function OnboardingPage() {
 
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [selectedMood, setSelectedMood] = useState<string[]>([]);
   const [budget, setBudget] = useState<"low" | "medium" | "high" | "">("");
@@ -28,6 +29,14 @@ export default function OnboardingPage() {
   >("solo");
 
   const [loading,setLoading] = useState(false);
+
+  // Pre-select mood from URL query param
+  useEffect(() => {
+    const moodParam = searchParams.get("mood");
+    if (moodParam && moods.some(m => m.value === moodParam)) {
+      setSelectedMood([moodParam]);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async () => {
 

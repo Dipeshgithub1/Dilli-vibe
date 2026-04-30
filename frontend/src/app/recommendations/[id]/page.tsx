@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import api from "../../../../lib/axios";
 import ViewPlace from "../ViewPlace";
 import AIThinkingLoader from "../../../../component/AIThinkingLoader";
+import toast from "react-hot-toast";
 
 interface Place {
   _id: string;
@@ -30,6 +31,40 @@ export default function PlaceDetailPage() {
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [allPlaceIds, setAllPlaceIds] = useState<string[]>([]);
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const getFavorites = (): Place[] => {
+    try {
+      return JSON.parse(localStorage.getItem("favorites") || "[]");
+    } catch {
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    if (!place) return;
+    const favs = getFavorites();
+    setIsFavorite(favs.some((p: Place) => p._id === place._id));
+  }, [place]);
+
+  const toggleFavorite = () => {
+    if (!place) return;
+    const favs = getFavorites();
+    const exists = favs.some((p: Place) => p._id === place._id);
+    let updated: Place[];
+
+    if (exists) {
+      updated = favs.filter((p: Place) => p._id !== place._id);
+      toast.success(`Removed ${place.name} from favorites`);
+    } else {
+      updated = [...favs, place];
+      toast.success(`Saved ${place.name} to favorites ❤️`);
+    }
+
+    localStorage.setItem("favorites", JSON.stringify(updated));
+    setIsFavorite(!exists);
+    window.dispatchEvent(new Event("storage"));
+  };
 
   useEffect(() => {
     if (!placeId) return;
@@ -104,6 +139,8 @@ export default function PlaceDetailPage() {
         onNext={handleNext}
         hasPrev={currentIndex > 0}
         hasNext={currentIndex < allPlaceIds.length - 1}
+        isFavorite={isFavorite}
+        onToggleFavorite={toggleFavorite}
       />
       )}
 
