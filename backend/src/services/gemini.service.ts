@@ -24,6 +24,15 @@ const ALLOWED_TAGS = [
   "photography",
   "culture",
   "hangout",
+  "relax",
+  "loud",
+  "couple-friendly",
+  "candlelight",
+  "walking",
+  "monument",
+  "group-friendly",
+  "lively",
+  "interactive",
 ];
 
 
@@ -126,14 +135,14 @@ Example:
         .filter(tag => ALLOWED_TAGS.includes(tag))
     )].slice(0, 6);
 
-    // 🔥 Smart filter (remove conflicts)
-    if (cleanInput.includes("chill") || cleanInput.includes("peaceful")) {
-      validTags = validTags.filter(tag => !["nightlife","crowded","party"].includes(tag));
-    }
-
-    if (cleanInput.includes("romantic")) {
-      validTags = validTags.filter(tag => tag !== "crowded");
-    }
+     // 🔥 Smart filter (remove conflicts)
+     if (cleanInput.includes("chill") || cleanInput.includes("peaceful")) {
+       validTags = validTags.filter(tag => !["nightlife","crowded","party","loud"].includes(tag));
+     }
+ 
+     if (cleanInput.includes("romantic")) {
+       validTags = validTags.filter(tag => !["crowded","nightlife","party"].includes(tag));
+     }
 
     if (!validTags.length) {
       return FALLBACK_TAGS;

@@ -1,11 +1,11 @@
 import mongoose ,{Schema,Document} from "mongoose";
 
 export interface IExperience extends Document {
-  name:string;
-  description:string;
-  area:string;
-  moods : ("chill"| "fun" |"romantic"| "explore" | "food" | "social")[];
-  //user mood chill, romantic, food, fun
+  name: string;
+  description: string;
+  area: string;
+  moods: ("chill" | "fun" | "romantic" | "explore" | "food" | "social")[];
+  // user mood chill, romantic, food, fun
   budgetPreference: "low" | "medium" | "high";
   suitableFor: ("solo" | "friends" | "couple" | "family")[];
 
@@ -93,10 +93,17 @@ const experienceSchema = new Schema <IExperience>(
       type: String
     },
 
-    location: {
-      lat: { type: Number },
-      lng: { type: Number },
-    },
+     location: {
+       type: {
+         type: String,
+         enum: ['Point'],
+         default: 'Point'
+       },
+       coordinates: {
+         type: [Number], // [longitude, latitude]
+         index: '2dsphere'
+       }
+     },
 
     isActive: {
       type: Boolean,

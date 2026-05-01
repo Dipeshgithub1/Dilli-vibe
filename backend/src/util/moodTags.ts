@@ -20,41 +20,44 @@ export const moodToTags:Record<Mood, string[]> = {
   fun: [
     "music",
     "crowded",
-    "loud",
     "nightlife",
     "party",
+    "loud",
     "energy",
   ],
 
   romantic: [
     "aesthetic",
     "cozy",
-    "couple-friendly",
+    "romantic",
     "quiet",
+    "couple-friendly",
     "candlelight",
   ],
 
   explore: [
     "historic",
-    "walking",
     "photography",
-    "monument",
     "culture",
+    "shopping",
+    "walking",
+    "monument",
   ],
 
   food: [
     "food",
     "cafe",
     "street-food",
-    "restaurant",
     "dessert",
+    "luxury",
+    "budget",
   ],
 
   social: [
-    "group-friendly",
-    "lively",
     "hangout",
     "cafe",
+    "group-friendly",
+    "lively",
     "interactive",
   ],
 };
