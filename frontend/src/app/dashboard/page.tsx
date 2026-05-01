@@ -38,14 +38,22 @@ export default function DashboardPage() {
       try {
         // Get recent viewed places from localStorage
         const viewed = JSON.parse(localStorage.getItem("recentlyViewed") || "[]");
-        setRecentPlaces(viewed.slice(0, 3));
+        const validViewed = Array.isArray(viewed) ? viewed : [];
+        setRecentPlaces(validViewed.slice(0, 3));
 
         // Get favorites count
         const favs = JSON.parse(localStorage.getItem("favorites") || "[]");
-        setStats(prev => ({
-          ...prev,
-          favoritesCount: Array.isArray(favs) ? favs.length : 0,
-        }));
+        const validFavs = Array.isArray(favs) ? favs : [];
+
+        // Calculate stats
+        const placesVisited = validViewed.length;
+        const favoritesCount = validFavs.length;
+
+        setStats({
+          placesVisited,
+          currentStreak: 0, // TODO: Implement streak tracking
+          favoritesCount,
+        });
       } catch (err) {
         console.error("Failed to load dashboard data", err);
       } finally {

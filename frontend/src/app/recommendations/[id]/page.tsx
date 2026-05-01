@@ -35,7 +35,7 @@ export default function PlaceDetailPage() {
   const [isFavorite, setIsFavorite] = useState(false);
 
   // Weather based on place area
-  const { weather, loading: weatherLoading } = useWeather(place?.area || "Delhi");
+  const { weather, loading: weatherLoading, error: weatherError } = useWeather(place?.area || "Delhi");
 
   const getFavorites = (): Place[] => {
     try {
@@ -122,10 +122,28 @@ export default function PlaceDetailPage() {
   // Save to recently viewed
   useEffect(() => {
     if (!place) return;
-    const recent = JSON.parse(localStorage.getItem("recentlyViewed") || "[]");
-    const filtered = recent.filter((p: Place) => p._id !== place._id);
-    const updated = [place, ...filtered].slice(0, 5);
-    localStorage.setItem("recentlyViewed", JSON.stringify(updated));
+    try {
+      const recent = JSON.parse(localStorage.getItem("recentlyViewed") || "[]");
+      const filtered = recent.filter((p: Place) => p._id !== place._id);
+
+      // Save full place data with all needed fields
+      const placeData = {
+        _id: place._id,
+        name: place.name,
+        area: place.area,
+        image: place.image,
+        moods: place.moods,
+        budgetPreference: place.budgetPreference,
+        suitableFor: place.suitableFor,
+        rating: place.rating,
+      };
+
+      const updated = [placeData, ...filtered].slice(0, 5);
+      localStorage.setItem("recentlyViewed", JSON.stringify(updated));
+      window.dispatchEvent(new Event("storage"));
+    } catch (err) {
+      console.error("Failed to save recently viewed", err);
+    }
   }, [place]);
 
   if (loading && !place) {
@@ -148,6 +166,7 @@ export default function PlaceDetailPage() {
           onToggleFavorite={toggleFavorite}
           weather={weather}
           weatherLoading={weatherLoading}
+          weatherError={weatherError}
           onShare={sharePlace}
         />
       )}

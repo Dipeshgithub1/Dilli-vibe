@@ -27,6 +27,7 @@ interface Props {
   onToggleFavorite?: () => void;
   weather?: { temp: number; description: string; humidity: number } | null;
   weatherLoading?: boolean;
+  weatherError?: string | null;
   onShare?: () => void;
 }
 
@@ -43,6 +44,7 @@ export default function ViewPlace({
   onToggleFavorite,
   weather,
   weatherLoading = false,
+  weatherError,
   onShare,
 }: Props) {
   return (
@@ -141,6 +143,7 @@ export default function ViewPlace({
             <div className="flex items-start justify-between mb-2">
               <h3 className="font-semibold text-blue-400 flex items-center gap-2">
                 🌤️ Current Weather in {place.area}
+                {weatherError && <span className="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-0.5 rounded">Estimated</span>}
               </h3>
               {weatherLoading ? (
                 <div className="animate-spin text-sm">⟳</div>
@@ -153,7 +156,7 @@ export default function ViewPlace({
                 <span className="text-zinc-500 text-sm">N/A</span>
               )}
             </div>
-            {weather && (
+            {weather && !weatherLoading && (
               <div className="flex items-center gap-4 text-sm text-zinc-300">
                 <span>💧 Humidity: {weather.humidity}%</span>
                 <span className="text-xs text-zinc-500">
@@ -163,6 +166,11 @@ export default function ViewPlace({
                    "🌤️ Great weather for your visit!"}
                 </span>
               </div>
+            )}
+            {weatherError && !weatherLoading && (
+              <p className="text-xs text-zinc-500 mt-2">
+                Weather data estimated. Add OpenWeather API key for real-time updates.
+              </p>
             )}
           </motion.div>
 
