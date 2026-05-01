@@ -4,7 +4,7 @@ import api from "../lib/axios";
 import { create } from "zustand";
 
 interface User {
-    _id:string,
+  _id: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -12,6 +12,7 @@ interface User {
   preferredVibes?: string[];
   budgetPreference?: string;
   companyType?: string;
+  authProvider?: "local" | "google";
 }
 
 interface AuthState {
