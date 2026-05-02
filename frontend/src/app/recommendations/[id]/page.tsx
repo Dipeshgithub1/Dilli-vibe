@@ -37,41 +37,41 @@ export default function PlaceDetailPage() {
   // Weather based on place area
   const { weather, loading: weatherLoading, error: weatherError } = useWeather(place?.area || "Delhi");
 
-  // Fetch place details
-  useEffect(() => {
-    const fetchPlace = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get(`/recommendations/place/${placeId}`);
-        const { data, explanation, bestTime } = response.data;
-        setPlace(data);
-        setExplanation(explanation);
-        setBestTime(bestTime);
-        setLoading(false);
-      } catch (error) {
-        console.error("Failed to fetch place:", error);
-        setLoading(false);
-        toast.error("Failed to load place details");
-      }
-    };
+    // Fetch place details
+    useEffect(() => {
+      const fetchPlace = async () => {
+        try {
+          setLoading(true);
+          const response = await api.get(`/recommendations/place/${placeId}`);
+          const { data, explanation, bestTime } = response.data;
+          setPlace(data);
+          setExplanation(explanation);
+          setBestTime(bestTime);
+          setLoading(false);
+        } catch (error) {
+          console.error("Failed to fetch place:", error);
+          setLoading(false);
+          toast.error("Failed to load place details");
+        }
+      };
 
-    fetchPlace();
-  }, [placeId]);
+      fetchPlace();
+    }, [placeId]);
 
-  // Fetch related places
-  useEffect(() => {
-    if (!placeId) return;
-    const fetchRelated = async () => {
-      try {
-        const response = await api.get(`/recommendations/related/${placeId}`);
-        setRelatedPlaces(response.data.data || []);
-      } catch (error) {
-        console.error("Failed to fetch related places:", error);
-      }
-    };
+    // Fetch related places
+    useEffect(() => {
+      if (!placeId) return;
+      const fetchRelated = async () => {
+        try {
+          const response = await api.get(`/related/${placeId}`);
+          setRelatedPlaces(response.data.data || []);
+        } catch (error) {
+          console.error("Failed to fetch related places:", error);
+        }
+      };
 
-    fetchRelated();
-  }, [placeId]);
+      fetchRelated();
+    }, [placeId]);
 
   const getFavorites = (): Place[] => {
     try {
