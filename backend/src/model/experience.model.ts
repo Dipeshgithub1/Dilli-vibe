@@ -18,10 +18,10 @@ export interface IExperience extends Document {
   rating?: number;
   image?: string;
 
-  location? : {
-   lat: number;
-   lng: number;
-  }
+   location?: {
+     type: string; // 'Point'
+     coordinates: number[]; // [longitude, latitude]
+   };
 
   isActive: boolean;
 

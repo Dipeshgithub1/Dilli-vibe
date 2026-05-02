@@ -1,5 +1,5 @@
 config:
-  target: "http://localhost:3001"
+  target: "https://dilli-vibe-6zrg.onrender.com/api"
 
 phases:
   - duration: 60
