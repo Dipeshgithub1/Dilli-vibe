@@ -69,6 +69,7 @@ export const loginController = async(
         res.status(200).json({
          success: true,
         message: "Login successful",
+        accessToken,
         data:user
         });
         
