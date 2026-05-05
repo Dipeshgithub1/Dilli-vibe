@@ -39,7 +39,7 @@ export default function RegisterPage() {
       const res = await api.post("/auth/register", form);
 
       if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("accessToken", res.data.accessToken);
       }
 
       if (res.data.data?.isOnboarded) {
