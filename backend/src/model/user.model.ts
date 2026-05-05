@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document,Model } from "mongoose";
 import bcrypt from "bcryptjs";
 import { Mood } from "../util/moodTags";
 
@@ -14,12 +14,15 @@ export interface IUser extends Document {
   companyType?: "solo" | "friends" | "couple" | "family";
   isOnboarded: boolean;
   
+  //Auth
   authProvider: "local" | "google";
   googleId?: string;
+  refreshToken?:string | null;
   
   comparePassword(candidate: string): Promise<boolean>;
 }
 
+//Schema
 const userSchema = new Schema<IUser>(
   {
     email: {
@@ -28,10 +31,11 @@ const userSchema = new Schema<IUser>(
       unique: true,
       lowercase: true,
       trim: true,
+      index:true  //fast lookup
     },
     password: {
       type: String,
-      required: true,
+      required:true,
       select: false,
     },
     firstName: {
@@ -44,31 +48,48 @@ const userSchema = new Schema<IUser>(
       required: true,
       trim: true,
     },
+    avatar: {
+      type: String,
+      default: null,
+    },
     authProvider: {
       type: String,
       enum: ["local", "google"],
       default: "local",
+      index:true
     },
-    googleId: String,
-    avatar: String,
-    preferredVibes: {
+    googleId: {
+      type: String,
+      index: true,
+      sparse: true, // allows null values
+    },
+   
+  preferredVibes: {
   type: [String],
   enum: ["chill", "fun", "romantic", "explore", "food", "social"],
   default: [],
   index: true,
 },
-    budgetPreference: {
-      type: String,
-      enum: ["low", "medium", "high"],
-    },
-    companyType:{
-      type:String,
-      enum:["solo", "friends", "couple", "family"]
+budgetPreference: {
+type: String,
+enum: ["low", "medium", "high"],
+index:true,
+},
+companyType:{
+type:String,
+enum:["solo", "friends", "couple", "family"],
+index:true,
       
-    },
-    isOnboarded: {
-   type: Boolean,
-   default: false,
+},
+isOnboarded: {
+type: Boolean,
+default: false,
+index:true,
+},
+refreshToken : {
+  type:String,
+  default:null,
+  select:false,
 }
 
   },
@@ -76,14 +97,14 @@ const userSchema = new Schema<IUser>(
 );
 
 //  Hash password before save
-userSchema.pre<IUser>("save", async function (next) {
-  if (!this.isModified("password")) return;
-
+userSchema.pre<IUser>("save", async function () {
+  if (!this.isModified("password") || !this.password) return;
   this.password = await bcrypt.hash(this.password, 10);
 });
 
 //  Compare password
 userSchema.methods.comparePassword = async function (candidate: string) {
+  if (!this.password) return false;
   return bcrypt.compare(candidate, this.password);
 };
 

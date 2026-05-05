@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerController,loginController,logoutController } from "../controllers/auth.controller";
+import { registerController,loginController,refreshController,logoutController } from "../controllers/auth.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { meController } from "../controllers/meController";
 
@@ -11,7 +11,9 @@ router.post("/register",registerController)
 //login
 router.post("/login",loginController)
 
-router.post("/logout", authMiddleware, logoutController);
+router.post("/refresh",refreshController)
+
+router.post("/logout",logoutController);
 
 
 router.get("/me", authMiddleware, meController);
