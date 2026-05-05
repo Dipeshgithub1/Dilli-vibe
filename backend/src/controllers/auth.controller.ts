@@ -63,7 +63,7 @@ export const loginController = async(
      res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: "strict",
+      sameSite: "none",
     });
 
         res.status(200).json({
@@ -84,6 +84,8 @@ export const loginController = async(
 export const refreshController = async(req:Request,res:Response) => {
     try {
         const refreshToken = req.cookies.refreshToken;
+        console.log("Refresh token from cookie:", refreshToken ? "present" : "missing");
+        
         if(!refreshToken) return res.status(401).json({message:"No refresh token"})
         
        //verify token
@@ -94,7 +96,7 @@ export const refreshController = async(req:Request,res:Response) => {
        if (!user || !user.refreshToken) {
          return res.status(401).json({ message: "Invalid refresh token" });
        }
-        
+       
         const isValid = await bcrypt.compare(
           refreshToken,
           user.refreshToken
@@ -112,6 +114,7 @@ export const refreshController = async(req:Request,res:Response) => {
 
         res.json({ accessToken });
       } catch (error) {
+        console.error("Refresh error:", error);
         res.status(401).json({ message: "Invalid refresh token" });
       }
     };
