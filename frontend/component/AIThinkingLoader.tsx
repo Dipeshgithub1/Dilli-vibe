@@ -21,7 +21,7 @@ export default function AIThinkingLoader() {
   useEffect(() => {
     const interval = setInterval(() => {
       setMessageIndex((prev) => (prev + 1) % thinkingMessages.length);
-    }, 1500);
+    }, 1800);
     return () => clearInterval(interval);
   }, []);
 

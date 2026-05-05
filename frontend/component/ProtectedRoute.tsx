@@ -16,21 +16,13 @@ export default function ProtectedRoute({children} : props){
 
 
     useEffect(() => {
-      const token = localStorage.getItem("token")
+      fetchMe();
+    },[fetchMe]);
 
-      if(!token){
-        router.push("/login");
-        return;
-      }
-      if(!user){
-        fetchMe()
-      }
-    },[fetchMe, router,user])
 
    useEffect(() => {
   if (!loading && !user) {
-    localStorage.removeItem("token")
-    router.push("/login");
+    router.replace("/login");
   }
 }, [user, loading, router]);
 
