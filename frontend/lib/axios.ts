@@ -7,10 +7,10 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
-    const accessToken = localStorage.getItem("accessToken");
+    const Token = localStorage.getItem("accessToken");
 
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+    if (Token) {
+      config.headers.Authorization = `Bearer ${Token}`;
     }
   }
 
@@ -28,18 +28,13 @@ api.interceptors.response.use(
     // If token expired
     if (
       error.response?.status === 401 &&
-      error.response?.data?.message === "Token expired" &&
       !originalRequest._retry
     ) {
       originalRequest._retry = true;
 
       try {
         // call refresh API (cookie used automatically)
-        const res = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
-          {},
-          { withCredentials: true }
-        );
+        const res = await api.post("/auth/refresh", {});
 
         const newAccessToken = res.data.accessToken;
 

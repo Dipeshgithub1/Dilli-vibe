@@ -23,7 +23,7 @@ export default function LoginPage() {
     try {
       const res = await api.post("/auth/login", { email, password });
 
-      localStorage.setItem("accessToken", res.data.data.token);
+      localStorage.setItem("accessToken", res.data.accessToken);
 
       await fetchMe();
 
