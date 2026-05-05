@@ -1,5 +1,7 @@
 import express from "express"
+import cookieParser from "cookie-parser";
 import cors  from "cors";
+import helmet from "helmet";
 import authRoutes from "./routes/auth.routes"
 import userRoute from "./routes/user.routes"
 import recommendationRoutes from "./routes/recommendation.routes";
@@ -7,11 +9,16 @@ import recommendationRoutes from "./routes/recommendation.routes";
 
 
 const app = express();
+app.use(helmet());
+
 app.use(cors({
   origin: process.env.CLIENT_URL || "http://localhost:3000",
   credentials: true
 }));
-app.use(express.json());
+
+app.use(cookieParser());
+
+app.use(express.json({limit: "10kb"}));
 
 //auth register login me logout
 app.use("/api/auth",authRoutes)

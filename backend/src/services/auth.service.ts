@@ -1,7 +1,7 @@
 import { User } from "../model/user.model";
 import { comparePassword, hashPassword } from "../util/hash";
-import jwt from "jsonwebtoken";
-
+import { generateAccessToken,generateRefreshToken } from "../util/token";
+import bcrypt from "bcryptjs";
 
 interface RegisterInput {
   email: string;
@@ -10,33 +10,25 @@ interface RegisterInput {
   lastName: string;
 }
 
-export const registerUser = async ({
-  email,
-  password,
-  firstName,
-  lastName,
-}: RegisterInput) => {
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
+export const registerUser = async(data:RegisterInput) => {
+const existingUser = await User.findOne({ email: data.email });
+
+if (existingUser) {
     throw new Error("Email is already registered");
   }
 
+  const user = await User.create(data);
 
-  const user = await User.create({
-    email,
-    password,      
-    firstName,
-    lastName,
-  });
-
-    const token = jwt.sign(
-    { id: user._id, email: user.email },
-    process.env.JWT_SECRET as string,
-    { expiresIn: "7d" }
-  );
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
+ 
+// store hashed refresh token 
+  user.refreshToken = await bcrypt.hash(refreshToken,10);
+  await user.save();
 
   return {
-    token,
+    accessToken,
+    refreshToken,
     user: {
       id: user._id,
       email: user.email,
@@ -48,7 +40,7 @@ export const registerUser = async ({
 };
 
 export const loginUser = async (email: string, password: string) => {
-  const user = await User.findOne({ email }).select("+password");
+  const user = await User.findOne({ email }).select("+password +refreshToken");
   if (!user) {
     throw new Error("Invalid email or password");
   }
@@ -58,17 +50,20 @@ export const loginUser = async (email: string, password: string) => {
     throw new Error("Invalid email or password");
   }
 
-  const token = jwt.sign(
-    { id: user._id, email: user.email },
-    process.env.JWT_SECRET as string,
-    { expiresIn: "7d" }
-  );
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
+
+// 🔐 update hashed refresh token
+  user.refreshToken = await bcrypt.hash(refreshToken, 10);
+  await user.save();
 
   return {
-    token,
+    accessToken,
+    refreshToken,
     user: {
       id: user._id,
       email: user.email,
     },
+    
   };
 }
