@@ -63,12 +63,9 @@ export default function OnboardingPage() {
       await useAuthStore.getState().fetchMe();
 
 
-      const res = await api.post(
-  "/recommendations?page=1&limit=6",
-  {
-    searchText,
-  }
-);
+const res = await api.get(
+        `/recommendations?page=1&limit=6&searchText=${encodeURIComponent(searchText)}`
+      );
 
       localStorage.setItem(
         "recommendations",

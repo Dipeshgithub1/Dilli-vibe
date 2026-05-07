@@ -29,8 +29,8 @@ export default function RegisterPage() {
     setError("");
 
     // Client-side validation
-    if (form.password.length < 6) {
-      setError("Password must be at least 6 characters");
+    if (form.password.length < 8) {
+      setError("Password must be at least 8 characters");
       setLoading(false);
       return;
     }
@@ -139,9 +139,9 @@ localStorage.setItem("accessToken", res.data.accessToken);
           </div>
 
           <div>
-            <label className="text-sm text-zinc-400 block mb-1">
-              Password (min 6 characters)
-            </label>
+<label className="text-sm text-zinc-400 block mb-1">
+               Password (min 8 characters)
+             </label>
             <input
               type="password"
               name="password"
