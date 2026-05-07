@@ -38,9 +38,7 @@ export default function RegisterPage() {
     try {
       const res = await api.post("/auth/register", form);
 
-      if (res.data.accessToken) {
-        localStorage.setItem("token", res.data.accessToken);
-      }
+localStorage.setItem("accessToken", res.data.accessToken);
 
       if (res.data.data?.isOnboarded) {
         router.push("/dashboard");

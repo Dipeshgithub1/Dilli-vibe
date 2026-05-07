@@ -1,66 +1,97 @@
-import mongoose ,{Schema,Document} from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
+import { moods, companyTypes, budgetPreferences } from "../util/auth.schema";
+
+export type Mood = (typeof moods)[number];
+export type CompanyType = (typeof companyTypes)[number];
+export type BudgetPreference = (typeof budgetPreferences)[number];
 
 export interface IExperience extends Document {
   name: string;
+  slug: string;
+
   description: string;
   area: string;
-  moods: ("chill" | "fun" | "romantic" | "explore" | "food" | "social")[];
-  // user mood chill, romantic, food, fun
-  budgetPreference: "low" | "medium" | "high";
-  suitableFor: ("solo" | "friends" | "couple" | "family")[];
+
+  moods: Mood[];
+
+  budgetPreference: BudgetPreference;
+
+  suitableFor: CompanyType[];
 
   tags: string[];
 
-  timePreference?: ("morning" | "afternoon" | "evening" | "night")[];
+  category?: string;
 
-  popularityScore?: number;
+  timePreference?: (
+    | "morning"
+    | "afternoon"
+    | "evening"
+    | "night"
+  )[];
 
-  rating?: number;
+  popularityScore: number;
+
+  rating: number;
+
+  totalRatings: number;
+
   image?: string;
 
-   location?: {
-     type: string; // 'Point'
-     coordinates: number[]; // [longitude, latitude]
-   };
+  location?: {
+    type: "Point";
+    coordinates: [number, number]; // [lng, lat]
+  };
 
   isActive: boolean;
-
 }
 
-
-const experienceSchema = new Schema <IExperience>(
-    {
-     name: {
+const experienceSchema = new Schema<IExperience>(
+  {
+    name: {
       type: String,
       required: true,
       trim: true,
     },
+
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      index: true,
+    },
+
     description: {
       type: String,
       required: true,
+      trim: true,
     },
+
     area: {
       type: String,
       required: true,
+      trim: true,
       index: true,
     },
+
     moods: {
       type: [String],
-      enum: ["chill", "fun", "romantic", "explore", "food", "social"],
+      enum: moods,
       required: true,
       index: true,
     },
 
     budgetPreference: {
       type: String,
-      enum: ["low", "medium", "high"],
+      enum: budgetPreferences,
       required: true,
       index: true,
     },
 
     suitableFor: {
       type: [String],
-      enum: ["solo", "friends", "couple", "family"],
+      enum: companyTypes,
       required: true,
       index: true,
     },
@@ -71,61 +102,90 @@ const experienceSchema = new Schema <IExperience>(
       index: true,
     },
 
+    category: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+
     timePreference: {
       type: [String],
       enum: ["morning", "afternoon", "evening", "night"],
-      default:[],
+      default: [],
     },
 
     popularityScore: {
       type: Number,
       default: 0,
+      min: 0,
     },
 
     rating: {
       type: Number,
       min: 0,
       max: 5,
-      default:4
+      default: 4,
+    },
+
+    totalRatings: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
 
     image: {
-      type: String
+      type: String,
+      trim: true,
     },
 
-     location: {
-       type: {
-         type: String,
-         enum: ['Point'],
-         default: 'Point'
-       },
-       coordinates: {
-         type: [Number], // [longitude, latitude]
-         index: '2dsphere'
-       }
-     },
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point",
+      },
+
+      coordinates: {
+        type: [Number],
+        index: "2dsphere",
+      },
+    },
 
     isActive: {
       type: Boolean,
       default: true,
+      index: true,
     },
-    },
-    {
-        timestamps:true
-    }
-)
+  },
+  {
+    timestamps: true,
+  }
+);
 
-//index for search and recommemends
+// 🔍 Search & Recommendation Indexes
+experienceSchema.index({
+  name: "text",
+  description: "text",
+  tags: "text",
+});
 
-experienceSchema.index({ isActive: 1, tags: 1 });
-experienceSchema.index({ area: 1, budgetPreference: 1 });
-experienceSchema.index({ rating: -1 });
-experienceSchema.index({ popularityScore: -1 });
-experienceSchema.index({ name: "text", description: "text", tags: "text" });
+experienceSchema.index({
+  moods: 1,
+  budgetPreference: 1,
+  suitableFor: 1,
+});
 
+experienceSchema.index({
+  area: 1,
+  popularityScore: -1,
+});
 
+experienceSchema.index({
+  isActive: 1,
+  rating: -1,
+});
 
 export const Experience = mongoose.model<IExperience>(
-    "Experience",
-    experienceSchema
-)
+  "Experience",
+  experienceSchema
+);

@@ -26,7 +26,7 @@ if (existingUser) {
   user.refreshToken = await bcrypt.hash(refreshToken,10);
   await user.save();
 
-  return {
+return {
     accessToken,
     refreshToken,
     user: {
@@ -34,10 +34,10 @@ if (existingUser) {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      isOnboarded: user.isOnboarded, 
+      isOnboarded: user.isOnboarded,
     }
-  }
-};
+  };
+}
 
 export const loginUser = async (email: string, password: string) => {
   const user = await User.findOne({ email }).select("+password +refreshToken");
@@ -53,17 +53,19 @@ export const loginUser = async (email: string, password: string) => {
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
 
-// 🔐 update hashed refresh token
+//  update hashed refresh token
   user.refreshToken = await bcrypt.hash(refreshToken, 10);
   await user.save();
 
-  return {
+return {
     accessToken,
     refreshToken,
     user: {
       id: user._id,
       email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      isOnboarded: user.isOnboarded,
     },
-    
   };
 }

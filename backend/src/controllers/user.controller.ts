@@ -10,7 +10,7 @@ export const onboardingController = async(
   next: NextFunction,
 ) => {
     try {
-        onboardingSchema.parse({body:req.body})
+    const validatedData = onboardingSchema.parse(req.body)
         
  // Get logged-in user ID (from JWT middleware)
  const userId = req.user?.id;
@@ -18,8 +18,8 @@ export const onboardingController = async(
     return res.status(401).json({message: "Unauthorized"})
  }
 
- //call service
- const user = await completeOnboarding(userId,req.body)
+//call service
+  const user = await completeOnboarding(userId, validatedData)
 
  // Send response
     res.status(200).json({

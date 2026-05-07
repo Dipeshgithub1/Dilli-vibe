@@ -1,29 +1,61 @@
+import { moods } from "./auth.schema";
 
-export type Mood = 
-  | "chill"
-  | "fun"
-  | "romantic"
-  | "explore"
-  | "food"
-  | "social";
+export type Mood = (typeof moods)[number];
 
-export const moodToTags:Record<Mood, string[]> = {
+export const TAGS = [
+  "peaceful",
+  "nature",
+  "quiet",
+  "outdoor",
+  "relax",
+
+  "music",
+  "nightlife",
+  "party",
+  "energy",
+
+  "aesthetic",
+  "cozy",
+  "romantic",
+  "couple-friendly",
+  "candlelight",
+
+  "historic",
+  "photography",
+  "culture",
+  "shopping",
+  "walking",
+  "monument",
+
+  "cafe",
+  "street-food",
+  "dessert",
+  "luxury",
+  "budget",
+
+  "hangout",
+  "group-friendly",
+  "lively",
+  "interactive",
+] as const;
+
+export type Tag = typeof TAGS[number];
+
+export const moodToTags: Record<Mood, Tag[]> = {
   chill: [
     "peaceful",
     "nature",
     "quiet",
-    "low-crowd",
     "outdoor",
     "relax",
   ],
 
   fun: [
     "music",
-    "crowded",
     "nightlife",
     "party",
-    "loud",
     "energy",
+    "lively",
   ],
 
   romantic: [
@@ -45,7 +77,6 @@ export const moodToTags:Record<Mood, string[]> = {
   ],
 
   food: [
-    "food",
     "cafe",
     "street-food",
     "dessert",
@@ -55,9 +86,9 @@ export const moodToTags:Record<Mood, string[]> = {
 
   social: [
     "hangout",
-    "cafe",
     "group-friendly",
-    "lively",
     "interactive",
+    "lively",
+    "cafe",
   ],
 };

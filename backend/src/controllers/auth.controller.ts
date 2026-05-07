@@ -24,11 +24,11 @@ export const registerController = async(
 
     //store refresh token in cookie
 
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-    });
+res.cookie("refreshToken", refreshToken, {
+       httpOnly: true,
+       secure: process.env.NODE_ENV === "production",
+       sameSite: "strict",
+     });
 
       res.status(201).json({
             success: true,
@@ -60,15 +60,16 @@ export const loginController = async(
         password
        )
 
-     res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-    });
+res.cookie("refreshToken", refreshToken, {
+       httpOnly: true,
+       secure: process.env.NODE_ENV === "production",
+       sameSite: "strict",
+     });
 
         res.status(200).json({
          success: true,
         message: "Login successful",
+        accessToken,
         data:user
         });
         
@@ -85,32 +86,47 @@ export const refreshController = async(req:Request,res:Response) => {
         const refreshToken = req.cookies.refreshToken;
         if(!refreshToken) return res.status(401).json({message:"No refresh token"})
         
-       //verify token
-       const decoded = jwt.verify(refreshToken,process.env.REFRESH_SECRET!) as any;
+        let decoded: { id: string };
+        try {
+          decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET!) as { id: string };
+        } catch {
+          return res.status(401).json({ message: "Invalid refresh token" });
+        }
         
-       //check if exist in DB
-       const user = await User.findById(decoded.id).select("+refreshToken");
-       if (!user || !user.refreshToken) {
-         return res.status(401).json({ message: "Invalid refresh token" });
-       }
+        const user = await User.findById(decoded.id).select("+refreshToken");
+        if (!user || !user.refreshToken) {
+          return res.status(401).json({ message: "Invalid refresh token" });
+        }
         
-        const isValid = await bcrypt.compare(
-          refreshToken,
-          user.refreshToken
-        );
-
+        const isValid = await bcrypt.compare(refreshToken, user.refreshToken);
         if (!isValid) {
           return res.status(401).json({ message: "Invalid refresh token" });
         }
-
-        const accessToken = jwt.sign(
+        
+        const newAccessToken = jwt.sign(
           { id: user._id, email: user.email },
           process.env.JWT_SECRET!,
           { expiresIn: "15m" }
         );
-
-        res.json({ accessToken });
+        
+        const newRefreshToken = jwt.sign(
+          { id: user._id },
+          process.env.REFRESH_SECRET!,
+          { expiresIn: "7d" }
+        );
+        
+        user.refreshToken = await bcrypt.hash(newRefreshToken, 10);
+        await user.save();
+        
+        res.cookie("refreshToken", newRefreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+        });
+        
+        res.json({ accessToken: newAccessToken });
       } catch (error) {
+        console.error("Refresh error:", error);
         res.status(401).json({ message: "Invalid refresh token" });
       }
     };
@@ -121,13 +137,13 @@ export const logoutController = async (req: Request, res: Response) => {
 
     if(refreshToken){
         try {
-            const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET!) as any;
+            const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET!) as { id: string };
             const user = await User.findById(decoded.id).select("+refreshToken");
-            if(user){
+            if(user && user.refreshToken){
                 user.refreshToken = null;
                 await user.save();
             }
-        } catch (error) {
+        } catch {
             // Token invalid, nothing to clear
         }
     }

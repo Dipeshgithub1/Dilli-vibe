@@ -6,7 +6,7 @@ import api from "../../../../lib/axios";
 import ViewPlace from "../ViewPlace";
 import AIThinkingLoader from "../../../../component/AIThinkingLoader";
 import toast from "react-hot-toast";
-import { useWeather } from "../../../lib/useWeather";
+import { useWeather } from "../../../../lib/useWeather";
 
 interface Place {
   _id: string;

@@ -1,6 +1,8 @@
 import mongoose, { Schema, Document,Model } from "mongoose";
 import bcrypt from "bcryptjs";
-import { Mood } from "../util/moodTags";
+import { moods, budgetPreferences, companyTypes } from "../util/auth.schema";
+
+export type Mood = (typeof moods)[number];
 
 export interface IUser extends Document {
   email: string;
@@ -10,9 +12,9 @@ export interface IUser extends Document {
   avatar?: string;
   // Onboarding / Preferences
   preferredVibes: Mood[];
-  budgetPreference?: "low" | "medium" | "high";
-  companyType?: "solo" | "friends" | "couple" | "family";
-  isOnboarded: boolean;
+  budgetPreference?: (typeof budgetPreferences)[number];
+  companyType?: (typeof companyTypes)[number];
+   isOnboarded: boolean;
   
   //Auth
   authProvider: "local" | "google";
@@ -64,24 +66,23 @@ const userSchema = new Schema<IUser>(
       sparse: true, // allows null values
     },
    
-  preferredVibes: {
-  type: [String],
-  enum: ["chill", "fun", "romantic", "explore", "food", "social"],
-  default: [],
-  index: true,
-},
-budgetPreference: {
-type: String,
-enum: ["low", "medium", "high"],
-index:true,
-},
+preferredVibes: {
+   type: [String],
+   enum: moods,
+   default: [],
+   index: true,
+ },
+ budgetPreference: {
+ type: String,
+ enum: budgetPreferences,
+ index:true,
+ },
 companyType:{
-type:String,
-enum:["solo", "friends", "couple", "family"],
-index:true,
-      
-},
-isOnboarded: {
+  type:String,
+  enum: companyTypes,
+  index:true,
+  },
+ isOnboarded: {
 type: Boolean,
 default: false,
 index:true,

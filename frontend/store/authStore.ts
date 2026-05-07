@@ -29,7 +29,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   fetchMe: async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("accessToken");
 
       if (!token) {
         set({ user: null, loading: false });
@@ -44,8 +44,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  logout: () => {
-    localStorage.removeItem("token");
-    set({ user: null,loading:false });
-  },
+logout: () => {
+     localStorage.removeItem("accessToken");
+     set({ user: null,loading:false });
+   },
 }));
