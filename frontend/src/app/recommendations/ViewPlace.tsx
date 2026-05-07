@@ -235,9 +235,9 @@ export default function ViewPlace({
             <span className="flex items-center gap-1 bg-zinc-800/60 px-3 py-1.5 rounded-lg backdrop-blur">
               ⭐ {place.rating ?? 4.5}
             </span>
-            <span className="flex items-center gap-1 bg-zinc-800/60 px-3 py-1.5 rounded-lg backdrop-blur">
-              👥 {place.suitableFor.join(", ")}
-            </span>
+<span className="flex items-center gap-1 bg-zinc-800/60 px-3 py-1.5 rounded-lg backdrop-blur">
+               👥 {place.suitableFor?.join(", ") || "Not specified"}
+             </span>
             <span className="flex items-center gap-1 bg-zinc-800/60 px-3 py-1.5 rounded-lg backdrop-blur">
               💰 {place.budgetPreference}
             </span>
