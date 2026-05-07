@@ -63,7 +63,7 @@ export default function PlaceDetailPage() {
       if (!placeId) return;
       const fetchRelated = async () => {
         try {
-          const response = await api.get(`/related/${placeId}`);
+          const response = await api.get(`/recommendations/related/${placeId}`);
           setRelatedPlaces(response.data.data || []);
         } catch (error) {
           console.error("Failed to fetch related places:", error);
