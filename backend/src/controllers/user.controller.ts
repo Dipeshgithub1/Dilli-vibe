@@ -10,7 +10,7 @@ export const onboardingController = async(
   next: NextFunction,
 ) => {
     try {
-        onboardingSchema.parse({body:req.body})
+    const validatedData = onboardingSchema.parse(req.body)
         
  // Get logged-in user ID (from JWT middleware)
  const userId = req.user?.id;

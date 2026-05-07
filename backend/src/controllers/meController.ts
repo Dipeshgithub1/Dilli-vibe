@@ -1,5 +1,7 @@
 import { Request,Response,NextFunction } from "express";
 import { User } from "../model/user.model";
+import { success } from "zod";
+
 
 
 
@@ -12,13 +14,20 @@ export const meController  = async(
         const userid = req.user?.id;
 
         if(!userid){
-            return res.status(401).json({ message: "Unauthorized" });
+            return res.status(401).json({
+                success:false,
+                 message: "Unauthorized" });
         }
 
-        const user = await User.findById(userid).select("-password");
+ const user = await User.findById(userid)
+ .select("-password -refreshToken")
+ .lean();
+ 
 
         if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ 
+        success:false,
+        message: "User not found" });
     }
 
     res.status(200).json({

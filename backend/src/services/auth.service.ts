@@ -53,7 +53,7 @@ export const loginUser = async (email: string, password: string) => {
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
 
-// 🔐 update hashed refresh token
+//  update hashed refresh token
   user.refreshToken = await bcrypt.hash(refreshToken, 10);
   await user.save();
 
