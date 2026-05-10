@@ -234,12 +234,10 @@ const res = await api.get(
                     📍 {place.area}
                   </p>
 
-                  {/* Suitable For */}
-                  <p className="text-xs text-zinc-400 mb-3">
-                    👥 {place.suitableFor
-                      .map((type) => peopleDisplayMap[type] || type)
-                      .join(", ")}
-                  </p>
+{/* Suitable For */}
+                   <p className="text-xs text-zinc-400 mb-3">
+                     👥 {place.suitableFor?.map((type) => peopleDisplayMap[type] || type)?.join(", ") || "Not specified"}
+                   </p>
 
 {/* Mood Badges with colors */}
                       <div className="flex flex-wrap gap-2 mb-3">
