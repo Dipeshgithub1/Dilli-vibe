@@ -47,6 +47,14 @@ export default function ViewPlace({
   weatherError,
   onShare,
 }: Props) {
+  // Defensive: ensure place exists
+  if (!place) {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
+        <p>Place not found</p>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-zinc-950 text-white relative overflow-hidden px-4 py-6">
 
@@ -243,17 +251,17 @@ export default function ViewPlace({
             </span>
           </div>
 
-          {/* 🏷️ TAGS */}
-          <div className="flex flex-wrap gap-2">
-            {place.moods.map((mood) => (
-              <span
-                key={mood}
-                className="text-xs bg-zinc-800 border border-zinc-700 px-3 py-1.5 rounded-md text-zinc-300 hover:bg-zinc-700 transition"
-              >
-                {mood}
-              </span>
-            ))}
-          </div>
+           {/* 🏷️ TAGS */}
+           <div className="flex flex-wrap gap-2">
+             {place.moods?.map((mood) => (
+               <span
+                 key={mood}
+                 className="text-xs bg-zinc-800 border border-zinc-700 px-3 py-1.5 rounded-md text-zinc-300 hover:bg-zinc-700 transition"
+               >
+                 {mood}
+               </span>
+             ))}
+           </div>
 
         </div>
       </div>

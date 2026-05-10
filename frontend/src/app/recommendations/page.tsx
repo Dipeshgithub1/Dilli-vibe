@@ -236,9 +236,7 @@ const res = await api.get(
 
 {/* Suitable For */}
                    <p className="text-xs text-zinc-400 mb-3">
-                     👥 {place.suitableFor
-                       ?.map((type) => peopleDisplayMap[type] || type)
-                       .join(", ")}
+                      👥 {place.suitableFor?.map((type) => peopleDisplayMap[type] || type)?.join(", ") || "Not specified"}
                    </p>
 
 {/* Mood Badges with colors */}
