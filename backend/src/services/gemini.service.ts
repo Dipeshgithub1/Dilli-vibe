@@ -164,18 +164,22 @@ Example:
 
 export const getPlaceExplanation = async (place: any, user: any) => {
   try {
+    // Defensive: ensure place and user are objects
+    const safePlace = place || {};
+    const safeUser = user || {};
+
     const prompt = `
 You are a Delhi city expert. Given a place and user preferences, explain why this place is recommended.
 
-Place: ${place.name}
-Area: ${place.area}
-Tags: ${place.tags?.join(", ")}
-Budget: ${place.budgetPreference}
-Suitable for: ${place.suitableFor?.join(", ")}
+Place: ${safePlace.name || "Unknown"}
+Area: ${safePlace.area || "Unknown"}
+Tags: ${safePlace.tags?.join(", ") || "Not specified"}
+Budget: ${safePlace.budgetPreference || "Not specified"}
+Suitable for: ${safePlace.suitableFor?.join(", ") || "Not specified"}
 
 User preferences:
-Vibes: ${user.preferredVibes?.join(", ")}
-Budget: ${user.budgetPreference}
+Vibes: ${safeUser.preferredVibes?.join(", ") || "Not specified"}
+Budget: ${safeUser.budgetPreference || "Not specified"}
 
 Respond in JSON format:
 {
