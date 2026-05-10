@@ -124,16 +124,16 @@ export default function FavoritesPage() {
                     </button>
                   </div>
                   <p className="text-xs text-zinc-500 mb-2">📍 {place.area}</p>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {place.moods.map((mood) => (
-                      <span
-                        key={mood}
-                        className="text-xs bg-zinc-800 px-2 py-1 rounded-md text-zinc-300"
-                      >
-                        {mood}
-                      </span>
-                    ))}
-                  </div>
+<div className="flex flex-wrap gap-2 mb-3">
+                     {place.moods?.map((mood) => (
+                       <span
+                         key={mood}
+                         className="text-xs bg-zinc-800 px-2 py-1 rounded-md text-zinc-300"
+                       >
+                         {mood}
+                       </span>
+                     ))}
+                   </div>
                   <div className="flex justify-between items-center text-sm mb-4">
                     <span className={budgetColorMap[place.budgetPreference] || "text-zinc-300"}>
                       {budgetDisplayMap[place.budgetPreference] || place.budgetPreference}

@@ -109,7 +109,7 @@ export default function PlaceDetailPage() {
   const sharePlace = async () => {
     if (!place) return;
 
-    const shareText = `Check out ${place.name} in ${place.area}! ${place.description.substring(0, 100)}... 🎯 ${place.budgetPreference} budget • ${place.moods.join(", ")}`;
+    const shareText = `Check out ${place.name} in ${place.area}! ${place.description.substring(0, 100)}... 🎯 ${place.budgetPreference} budget • ${place.moods?.join(", ") || "various moods"}`;
     const shareUrl = `${window.location.origin}/recommendations/${place._id}`;
 
     if (navigator.share) {

@@ -241,9 +241,9 @@ const res = await api.get(
                       .join(", ")}
                   </p>
 
-                  {/* Mood Badges with colors */}
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {place.moods.map((mood) => {
+{/* Mood Badges with colors */}
+                      <div className="flex flex-wrap gap-2 mb-3">
+                      {place.moods?.map((mood) => {
                       const moodColorMap: Record<string, { bg: string; border: string; text: string }> = {
                         romantic: { bg: "bg-pink-500/20", border: "border-pink-500/30", text: "text-pink-300" },
                         chill: { bg: "bg-blue-500/20", border: "border-blue-500/30", text: "text-blue-300" },
