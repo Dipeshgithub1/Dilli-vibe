@@ -10,7 +10,7 @@ import { useWeather } from "../../../../lib/useWeather";
 
 interface Place {
   _id: string;
-  name: string;
+  name?: string;
   description: string;
   area: string;
   moods: string[];
