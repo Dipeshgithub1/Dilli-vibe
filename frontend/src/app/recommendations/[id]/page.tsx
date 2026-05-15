@@ -10,7 +10,7 @@ import { useWeather } from "../../../../lib/useWeather";
 
 interface Place {
   _id: string;
-  name?: string;
+  name: string;
   description: string;
   area: string;
   moods: string[];
@@ -31,7 +31,13 @@ export default function PlaceDetailPage() {
   const [bestTime, setBestTime] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [allPlaceIds, setAllPlaceIds] = useState<string[]>([]);
+  const [allPlaceIds, setAllPlaceIds] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("recommendationPlaceIds") || "[]");
+    } catch {
+      return [];
+    }
+  });
   const [isFavorite, setIsFavorite] = useState(false);
 
   // Weather based on place area
@@ -47,11 +53,22 @@ export default function PlaceDetailPage() {
           setPlace(data);
           setExplanation(explanation);
           setBestTime(bestTime);
+          // Update allPlaceIds from cache and set currentIndex
+          const cachedIds = localStorage.getItem("recommendationPlaceIds");
+          if (cachedIds) {
+            const ids = JSON.parse(cachedIds);
+            setAllPlaceIds(ids);
+            const idx = ids.indexOf(data._id);
+            if (idx !== -1) {
+              setCurrentIndex(idx);
+            }
+          }
           setLoading(false);
         } catch (error) {
           console.error("Failed to fetch place:", error);
+          setPlace(null);
           setLoading(false);
-          toast.error("Failed to load place details");
+          toast.error("Place not found");
         }
       };
 
@@ -81,10 +98,11 @@ export default function PlaceDetailPage() {
     }
   };
 
+  // Sync isFavorite state when place changes (eslint-disable needed for this valid pattern)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!place) return;
-    const favs = getFavorites();
-    setIsFavorite(favs.some((p: Place) => p._id === place._id));
+    setIsFavorite(getFavorites().some((p: Place) => p._id === place._id));
   }, [place]);
 
   const toggleFavorite = () => {
@@ -109,7 +127,8 @@ export default function PlaceDetailPage() {
   const sharePlace = async () => {
     if (!place) return;
 
-    const shareText = `Check out ${place.name} in ${place.area}! ${place.description.substring(0, 100)}... 🎯 ${place.budgetPreference} budget • ${place.moods?.join(", ") || "various moods"}`;
+    const desc = place.description || "";
+    const shareText = `Check out ${place.name} in ${place.area}! ${desc.substring(0, 100)}... 🎯 ${place.budgetPreference} budget • ${place.moods?.join(", ") || "various moods"}`;
     const shareUrl = `${window.location.origin}/recommendations/${place._id}`;
 
     if (navigator.share) {
@@ -184,6 +203,22 @@ export default function PlaceDetailPage() {
 
   if (loading && !place) {
     return <AIThinkingLoader />;
+  }
+
+  if (!place) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-zinc-400 mb-4">Place not found or unavailable</p>
+          <button
+            onClick={() => router.push("/recommendations")}
+            className="px-4 py-2 bg-orange-500 rounded-lg"
+          >
+            Back to Recommendations
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
