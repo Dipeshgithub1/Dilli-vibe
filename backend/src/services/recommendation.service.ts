@@ -284,9 +284,10 @@ export const getPlaceById = async (
   placeId: string,
   userId: string
 ) => {
-  const place = await Experience.findById(
-    placeId
-  ).lean();
+  const place = await Experience.findOne({
+    _id: placeId,
+    isActive: true,
+  }).lean();
 
   if (!place) {
     throw new Error("Place not found");
@@ -318,9 +319,10 @@ export const getRelatedPlaces = async (
 ) => {
   limit = Math.min(Math.max(limit, 1), 10);
 
-  const place = await Experience.findById(
-    placeId
-  ).lean();
+  const place = await Experience.findOne({
+    _id: placeId,
+    isActive: true,
+  }).lean();
 
   if (!place) {
     throw new Error("Place not found");

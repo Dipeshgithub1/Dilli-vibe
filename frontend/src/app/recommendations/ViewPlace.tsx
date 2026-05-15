@@ -55,6 +55,7 @@ export default function ViewPlace({
       </div>
     );
   }
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white relative overflow-hidden px-4 py-6">
 
@@ -238,18 +239,18 @@ export default function ViewPlace({
             </p>
           </div>
 
-          {/* 📊 INFO BADGES */}
-          <div className="flex flex-wrap gap-4 text-sm text-zinc-400">
-            <span className="flex items-center gap-1 bg-zinc-800/60 px-3 py-1.5 rounded-lg backdrop-blur">
-              ⭐ {place.rating ?? 4.5}
-            </span>
-<span className="flex items-center gap-1 bg-zinc-800/60 px-3 py-1.5 rounded-lg backdrop-blur">
+{/* 📊 INFO BADGES */}
+           <div className="flex flex-wrap gap-4 text-sm text-zinc-400">
+             <span className="flex items-center gap-1 bg-zinc-800/60 px-3 py-1.5 rounded-lg backdrop-blur">
+               ⭐ {place.rating ?? 4.5}
+             </span>
+             <span className="flex items-center gap-1 bg-zinc-800/60 px-3 py-1.5 rounded-lg backdrop-blur">
                👥 {place.suitableFor?.join(", ") || "Not specified"}
              </span>
-            <span className="flex items-center gap-1 bg-zinc-800/60 px-3 py-1.5 rounded-lg backdrop-blur">
-              💰 {place.budgetPreference}
-            </span>
-          </div>
+             <span className="flex items-center gap-1 bg-zinc-800/60 px-3 py-1.5 rounded-lg backdrop-blur">
+               💰 {place.budgetPreference}
+             </span>
+           </div>
 
            {/* 🏷️ TAGS */}
            <div className="flex flex-wrap gap-2">
